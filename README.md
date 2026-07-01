@@ -50,6 +50,18 @@ flutter build ipa --release          # App Store / TestFlight için
 ```
 > Not: Cihaza kurulum ve App Store dağıtımı için Xcode'da imzalama (Signing & Capabilities) ayarlanmalıdır.
 
+## Pusula Doğruluğu
+
+- Kıble açısı, Kâbe'ye (21.4225°K, 39.8262°D) büyük daire başlangıç açısı olarak hesaplanır ve **gerçek kuzeye** göredir. Bilinen şehir değerleriyle birim testlerle doğrulanır.
+- **iOS** pusulası `trueHeading` (gerçek kuzey) bildirir; ek düzeltme gerekmez.
+- **Android** pusulası manyetik kuzeyi baz aldığından, WMM-2025 modeliyle (geomag) manyetik sapma düzeltmesi uygulanır.
+- Donanım pusulası çevredeki metal/mıknatıslardan etkilenebilir; uygulama içinde 8 çizerek kalibrasyon önerilir.
+
+## Atıflar
+
+- Ezan sesi: ["The Adhan - Muslim Call to Prayer" — Aaqib Azeez](https://commons.wikimedia.org/wiki/File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.tr). Bildirim sesi sınırları nedeniyle ilk 28 saniyesi kullanılmıştır (kırpılmış türev de aynı lisansla dağıtılır).
+- Amiri fontu: [Amiri Project](https://github.com/aliftype/amiri), SIL Open Font License 1.1.
+
 ## Sürümleme (Versioning)
 
 [Semantic Versioning](https://semver.org/lang/tr/) kullanılır: `MAJOR.MINOR.PATCH`

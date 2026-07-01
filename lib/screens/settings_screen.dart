@@ -15,9 +15,11 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notifOn = true;
   int _minutesBefore = 15;
+  bool _adhanSound = true;
 
   static const _kNotifOn = 'notifications_on';
   static const _kMinutesBefore = 'minutes_before';
+  static const _kAdhanSound = 'adhan_sound';
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _notifOn = prefs.getBool(_kNotifOn) ?? true;
       _minutesBefore = prefs.getInt(_kMinutesBefore) ?? 15;
+      _adhanSound = prefs.getBool(_kAdhanSound) ?? true;
     });
   }
 
@@ -38,6 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kNotifOn, _notifOn);
     await prefs.setInt(_kMinutesBefore, _minutesBefore);
+    await prefs.setBool(_kAdhanSound, _adhanSound);
     await NotificationService.instance.rescheduleFromPrefs();
   }
 
@@ -93,17 +97,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _saveNotifPrefs();
             },
           ),
+          // Vakit girdiğinde: ezan sesi mi, normal bildirim sesi mi?
           ListTile(
             contentPadding: EdgeInsets.zero,
             enabled: _notifOn,
-            title: Text(s.minutesBeforeTitle),
+            leading: Icon(
+              _adhanSound ? Icons.volume_up : Icons.notifications_active,
+              color: _notifOn ? Theme.of(context).colorScheme.primary : Colors.grey,
+            ),
+            title: Text(s.atPrayerTime),
+            trailing: SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(value: true, label: Text(s.playAdhan)),
+                ButtonSegment(value: false, label: Text(s.notificationSound)),
+              ],
+              selected: {_adhanSound},
+              onSelectionChanged: _notifOn
+                  ? (sel) {
+                      setState(() => _adhanSound = sel.first);
+                      _saveNotifPrefs();
+                    }
+                  : null,
+              showSelectedIcon: false,
+            ),
+          ),
+          // Vakitten önce ek hatırlatma (her zaman normal bildirim sesiyle).
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            enabled: _notifOn,
+            leading: Icon(
+              Icons.alarm,
+              color: _notifOn ? Theme.of(context).colorScheme.primary : Colors.grey,
+            ),
+            title: Text(s.remindBefore),
             trailing: DropdownButton<int>(
               value: _minutesBefore,
               items: [0, 5, 10, 15, 30, 45]
                   .map((m) => DropdownMenuItem(
                         value: m,
-                        child: Text(
-                            m == 0 ? s.onTime : s.minutesBeforeOption(m)),
+                        child:
+                            Text(m == 0 ? s.off : s.minutesBeforeOption(m)),
                       ))
                   .toList(),
               onChanged: _notifOn

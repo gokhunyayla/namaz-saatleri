@@ -6,6 +6,7 @@ import 'app_settings.dart';
 import 'screens/home_screen.dart';
 import 'screens/qibla_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/verse_screen.dart';
 import 'services/location_service.dart';
 import 'services/notification_service.dart';
 
@@ -80,6 +81,7 @@ class _RootShellState extends State<RootShell> {
         children: [
           HomeScreen(location: _location),
           QiblaScreen(location: _location),
+          VerseScreen(location: _location),
           const SettingsScreen(),
         ],
       ),
@@ -95,6 +97,11 @@ class _RootShellState extends State<RootShell> {
             icon: const Icon(Icons.explore_outlined),
             selectedIcon: const Icon(Icons.explore),
             label: s.tabQibla,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.auto_stories_outlined),
+            selectedIcon: const Icon(Icons.auto_stories),
+            label: s.tabVerse,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),

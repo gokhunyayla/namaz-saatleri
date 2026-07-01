@@ -63,6 +63,7 @@ class NotificationService {
     final prefs = await SharedPreferences.getInstance();
     final on = prefs.getBool('notifications_on') ?? true;
     final minutes = prefs.getInt('minutes_before') ?? 15;
+    final adhan = prefs.getBool('adhan_sound') ?? true;
     final info = await LocationService.loadCached();
 
     if (!on || info == null) {
@@ -75,17 +76,23 @@ class NotificationService {
       lat: info.latitude,
       lng: info.longitude,
       minutesBefore: minutes,
+      adhanSound: adhan,
     );
   }
 
-  /// Önümüzdeki [days] gün için 5 vaktin hatırlatmalarını planlar.
-  /// [minutesBefore] 0 ise vakit girdiğinde, değilse vakitten o kadar dakika
-  /// önce bildirim gelir. iOS'un 64 bekleyen bildirim sınırına takılmamak için
-  /// gün sayısı sınırlı tutulur; uygulama her açılışta yeniden planlar.
+  /// Önümüzdeki [days] gün için 5 vaktin bildirimlerini planlar.
+  ///
+  /// Vakit girdiğinde her zaman bir bildirim gönderilir; [adhanSound] açıksa
+  /// bu bildirimde ezan sesi (28 sn, iOS bildirim sesi sınırı 30 sn), kapalıysa
+  /// telefonun normal bildirim sesi çalar. [minutesBefore] > 0 ise vakitten o
+  /// kadar dakika önce normal sesli bir ön hatırlatma da eklenir.
+  /// iOS'un 64 bekleyen bildirim sınırına takılmamak için gün sayısı sınırlı
+  /// tutulur; uygulama her açılışta yeniden planlar.
   Future<void> scheduleAll({
     required double lat,
     required double lng,
     required int minutesBefore,
+    required bool adhanSound,
     int days = 5,
   }) async {
     await _plugin.cancelAll();
@@ -107,34 +114,62 @@ class NotificationService {
       };
 
       for (final e in entries.entries) {
-        final fireAt = minutesBefore == 0
-            ? e.value
-            : e.value.subtract(Duration(minutes: minutesBefore));
-        if (fireAt.isBefore(now)) {
-          id++;
-          continue;
-        }
         final timeText = DateFormat.Hm(localeCode).format(e.value);
-        final body = minutesBefore == 0
-            ? s.notifBodyNow(e.key, timeText)
-            : s.notifBodyBefore(e.key, minutesBefore, timeText);
-        await _schedule(id++, s.notifTitle(e.key), body, fireAt);
+
+        // 1) Vakit girdiğinde (ezan sesi veya normal ses).
+        if (e.value.isAfter(now)) {
+          await _schedule(
+            id++,
+            s.notifTitle(e.key),
+            s.notifBodyNow(e.key, timeText),
+            e.value,
+            adhan: adhanSound,
+          );
+        }
+
+        // 2) İsteğe bağlı ön hatırlatma (her zaman normal ses).
+        if (minutesBefore > 0) {
+          final fireAt = e.value.subtract(Duration(minutes: minutesBefore));
+          if (fireAt.isAfter(now)) {
+            await _schedule(
+              id++,
+              s.notifTitle(e.key),
+              s.notifBodyBefore(e.key, minutesBefore, timeText),
+              fireAt,
+              adhan: false,
+            );
+          }
+        }
       }
     }
   }
 
-  Future<void> _schedule(
-      int id, String title, String body, DateTime at) async {
-    const details = NotificationDetails(
-      android: AndroidNotificationDetails(
-        'namaz_vakitleri',
-        'Namaz Vakitleri',
-        channelDescription: 'Namaz vakti hatırlatmaları',
-        importance: Importance.high,
-        priority: Priority.high,
-      ),
-      iOS: DarwinNotificationDetails(),
-    );
+  Future<void> _schedule(int id, String title, String body, DateTime at,
+      {required bool adhan}) async {
+    // Ezan sesli bildirimler ayrı bir Android kanalında: kanal sesi
+    // oluşturulduktan sonra değiştirilemediği için kanallar ayrıdır.
+    final details = adhan
+        ? const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'vakit_ezan',
+              'Ezan Sesli Vakit Bildirimleri',
+              channelDescription: 'Vakit girdiğinde ezan sesiyle bildirim',
+              importance: Importance.high,
+              priority: Priority.high,
+              sound: RawResourceAndroidNotificationSound('ezan'),
+            ),
+            iOS: DarwinNotificationDetails(sound: 'ezan.caf'),
+          )
+        : const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'namaz_vakitleri',
+              'Namaz Vakitleri',
+              channelDescription: 'Namaz vakti hatırlatmaları',
+              importance: Importance.high,
+              priority: Priority.high,
+            ),
+            iOS: DarwinNotificationDetails(),
+          );
     final when = tz.TZDateTime.from(at, tz.local);
     try {
       await _plugin.zonedSchedule(

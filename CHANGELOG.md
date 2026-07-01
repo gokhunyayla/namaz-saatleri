@@ -4,6 +4,21 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [0.6.0] - 2026-07-02
+
+### Eklendi
+- "Vaktin Ayeti" sekmesi: içinde bulunulan vakte göre Kur'an-ı Kerim'den o vakitle ilgili bir ayet; Arapça metin Amiri hattıyla her zaman gösterilir, altında seçili dile göre meali ve kaynak (sure/ayet) yer alır. Ayetler uygulamaya gömülü, elle seçilmiş ve doğrulanmış sabit bir listedir (İsrâ 78, Kaf 39, Rûm 18, Tâhâ 130, Rûm 17, Hûd 114)
+- Ezan sesi: Ayarlar'da "Vakit girdiğinde: Ezan oku / Bildirim sesi" seçimi. Ezan oku seçiliyken vakit bildirimi ezan sesiyle gelir (28 sn; iOS bildirim sesi sınırı 30 sn'dir). "Önceden hatırlat" seçeneği ayrıca vakitten 5–45 dk önce normal sesli hatırlatma ekler
+- Android pusula düzeltmesi: manyetik sapma WMM-2025 modeliyle (geomag) düzeltilir; iOS zaten gerçek kuzey (trueHeading) kullanır. Kıble açıları bilinen şehir değerleriyle birim testlerle doğrulandı (±1°)
+
+### Değişti
+- Kıble pusulasının ortasındaki cami ikonu Kâbe (🕋) ile değiştirildi
+- Başlıktaki الله ve محمد hat yazılarına koyu kontur eklendi; açık temada da net görünür
+
+### Düzeltildi
+- Ana ekran başlığı yeniden "Ezan Vakitleri" oldu ("Vakte" yalnızca uygulamanın adıdır)
+- Üst çubuğun rengi varsayılan haline döndürüldü
+
 ## [0.5.0] - 2026-07-02
 
 ### Değişti

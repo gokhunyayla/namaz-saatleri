@@ -1,8 +1,11 @@
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
+import 'package:geomag/geomag.dart';
 
 import '../app_settings.dart';
 import '../services/location_service.dart';
@@ -19,6 +22,25 @@ class QiblaScreen extends StatefulWidget {
 
 class _QiblaScreenState extends State<QiblaScreen> {
   bool _wasAligned = false;
+
+  // Manyetik sapma önbelleği (konuma göre bir kez hesaplanır).
+  double _declination = 0;
+  String? _declinationKey;
+
+  /// Android pusulası manyetik kuzeyi baz alır; gerçek kuzeye çevirmek için
+  /// WMM-2025 modeliyle manyetik sapma eklenir. iOS zaten gerçek kuzey
+  /// (trueHeading) bildirdiği için düzeltme uygulanmaz.
+  double _declinationFor(LocationInfo info) {
+    if (kIsWeb || !Platform.isAndroid) return 0;
+    final key =
+        '${info.latitude.toStringAsFixed(2)},${info.longitude.toStringAsFixed(2)}';
+    if (_declinationKey != key) {
+      _declination =
+          GeoMag().calculate(info.latitude, info.longitude).dec;
+      _declinationKey = key;
+    }
+    return _declination;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,22 +63,22 @@ class _QiblaScreenState extends State<QiblaScreen> {
           }
           final qibla =
               PrayerService.qiblaDirection(info.latitude, info.longitude);
-          return _compass(qibla);
+          return _compass(qibla, _declinationFor(info));
         },
       ),
     );
   }
 
-  Widget _compass(double qibla) {
+  Widget _compass(double qibla, double declination) {
     final s = AppSettings.instance.strings;
     return StreamBuilder<CompassEvent>(
       stream: FlutterCompass.events,
       builder: (context, snapshot) {
-        final heading = snapshot.data?.heading;
+        final rawHeading = snapshot.data?.heading;
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (heading == null) {
+        if (rawHeading == null) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -67,6 +89,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
             ),
           );
         }
+
+        // Gerçek kuzeye göre yön (Android'de manyetik sapma düzeltilir).
+        final heading = (rawHeading + declination) % 360;
 
         // Kıbleye göre sapma: -180..180 arası.
         var diff = (qibla - heading) % 360;
@@ -119,7 +144,8 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       top: 0,
                       child: Icon(Icons.arrow_drop_down, size: 40),
                     ),
-                    Icon(Icons.mosque, size: 40, color: color),
+                    // Kâbe
+                    const Text('🕋', style: TextStyle(fontSize: 40)),
                   ],
                 ),
               ),

@@ -233,10 +233,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        // Beyaz hat yazıları her iki temada da okunsun diye üst çubuk
-        // uygulamanın ana rengine boyanır.
-        backgroundColor: const Color(0xFF00695C),
-        foregroundColor: Colors.white,
         // Hat yazıları dil yönünden bağımsız sabit dursun:
         // sağda "Allah", solda "Muhammed".
         title: Directionality(
@@ -257,18 +253,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Amiri (Nesih hattı) fontuyla beyaz hat yazısı.
+  /// Beyaz dolgu + koyu kontur: hem açık hem koyu temada net okunur.
   Widget _calligraphy(String text) {
+    const base = TextStyle(
+      fontFamily: 'Amiri',
+      fontSize: 24,
+      height: 1.0,
+      fontWeight: FontWeight.w700,
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontFamily: 'Amiri',
-          fontSize: 24,
-          height: 1.0,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-        ),
+      child: Stack(
+        children: [
+          Text(
+            text,
+            style: base.copyWith(
+              foreground: Paint()
+                ..style = PaintingStyle.stroke
+                ..strokeWidth = 2
+                ..color = Colors.black.withValues(alpha: 0.55),
+            ),
+          ),
+          Text(text, style: base.copyWith(color: Colors.white)),
+        ],
       ),
     );
   }

@@ -14,6 +14,7 @@ abstract class Strings {
   String get appTitle;
   String get tabTimes;
   String get tabQibla;
+  String get tabVerse;
   String get tabSettings;
 
   /// Sırayla: İmsak, Güneş, Öğle, İkindi, Akşam, Yatsı.
@@ -67,17 +68,29 @@ abstract class Strings {
   String notifTitle(String prayer);
   String notifBodyNow(String prayer, String time);
   String notifBodyBefore(String prayer, int minutes, String time);
+
+  String get verseTitle;
+  String verseOfPeriod(String prayer);
+  String get translationLabel;
+
+  String get atPrayerTime;
+  String get playAdhan;
+  String get notificationSound;
+  String get remindBefore;
+  String get off;
 }
 
 class StringsTr extends Strings {
   const StringsTr();
 
   @override
-  String get appTitle => 'Vakte';
+  String get appTitle => 'Ezan Vakitleri';
   @override
   String get tabTimes => 'Vakitler';
   @override
   String get tabQibla => 'Kıble';
+  @override
+  String get tabVerse => 'Vaktin Ayeti';
   @override
   String get tabSettings => 'Ayarlar';
 
@@ -181,17 +194,37 @@ class StringsTr extends Strings {
   @override
   String notifBodyBefore(String prayer, int minutes, String time) =>
       '$prayer vaktine $minutes dakika kaldı ($time).';
+
+  @override
+  String get verseTitle => 'Vaktin Ayeti';
+  @override
+  String verseOfPeriod(String prayer) => '$prayer vaktinin ayeti';
+  @override
+  String get translationLabel => 'Meali';
+
+  @override
+  String get atPrayerTime => 'Vakit girdiğinde';
+  @override
+  String get playAdhan => 'Ezan oku';
+  @override
+  String get notificationSound => 'Bildirim sesi';
+  @override
+  String get remindBefore => 'Önceden hatırlat';
+  @override
+  String get off => 'Kapalı';
 }
 
 class StringsAr extends Strings {
   const StringsAr();
 
   @override
-  String get appTitle => 'Vakte';
+  String get appTitle => 'مواقيت الأذان';
   @override
   String get tabTimes => 'المواقيت';
   @override
   String get tabQibla => 'القبلة';
+  @override
+  String get tabVerse => 'آية الوقت';
   @override
   String get tabSettings => 'الإعدادات';
 
@@ -295,17 +328,37 @@ class StringsAr extends Strings {
   @override
   String notifBodyBefore(String prayer, int minutes, String time) =>
       'بقي $minutes دقيقة على وقت $prayer ($time).';
+
+  @override
+  String get verseTitle => 'آية الوقت';
+  @override
+  String verseOfPeriod(String prayer) => 'آية وقت $prayer';
+  @override
+  String get translationLabel => 'المعنى';
+
+  @override
+  String get atPrayerTime => 'عند دخول الوقت';
+  @override
+  String get playAdhan => 'تشغيل الأذان';
+  @override
+  String get notificationSound => 'صوت الإشعار';
+  @override
+  String get remindBefore => 'تذكير مسبق';
+  @override
+  String get off => 'إيقاف';
 }
 
 class StringsEn extends Strings {
   const StringsEn();
 
   @override
-  String get appTitle => 'Vakte';
+  String get appTitle => 'Adhan Times';
   @override
   String get tabTimes => 'Times';
   @override
   String get tabQibla => 'Qibla';
+  @override
+  String get tabVerse => 'Verse';
   @override
   String get tabSettings => 'Settings';
 
@@ -409,4 +462,22 @@ class StringsEn extends Strings {
   @override
   String notifBodyBefore(String prayer, int minutes, String time) =>
       '$minutes minutes until $prayer ($time).';
+
+  @override
+  String get verseTitle => 'Verse of the Hour';
+  @override
+  String verseOfPeriod(String prayer) => 'Verse for $prayer time';
+  @override
+  String get translationLabel => 'Meaning';
+
+  @override
+  String get atPrayerTime => 'At prayer time';
+  @override
+  String get playAdhan => 'Play adhan';
+  @override
+  String get notificationSound => 'Notification sound';
+  @override
+  String get remindBefore => 'Remind before';
+  @override
+  String get off => 'Off';
 }
