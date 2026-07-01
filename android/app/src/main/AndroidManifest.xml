@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <application
-        android:label="Ezan Saatleri"
+        android:label="Vakte"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

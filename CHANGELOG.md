@@ -4,6 +4,13 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [0.5.0] - 2026-07-02
+
+### Değişti
+- Uygulama adı "Ezan Saatleri" → "Vakte" (tüm dillerde)
+- Logo: sade beyaz kare üzerinde hat stili tek Elif (ا), Amiri hattıyla
+- Başlıktaki الله ve محمد hat yazıları beyaz oldu; okunabilirlik için üst çubuk uygulamanın teal rengine boyandı
+
 ## [0.4.0] - 2026-07-01
 
 ### Eklendi

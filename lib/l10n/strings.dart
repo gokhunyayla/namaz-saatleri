@@ -73,7 +73,7 @@ class StringsTr extends Strings {
   const StringsTr();
 
   @override
-  String get appTitle => 'Ezan Saatleri';
+  String get appTitle => 'Vakte';
   @override
   String get tabTimes => 'Vakitler';
   @override
@@ -187,7 +187,7 @@ class StringsAr extends Strings {
   const StringsAr();
 
   @override
-  String get appTitle => 'مواقيت الأذان';
+  String get appTitle => 'Vakte';
   @override
   String get tabTimes => 'المواقيت';
   @override
@@ -301,7 +301,7 @@ class StringsEn extends Strings {
   const StringsEn();
 
   @override
-  String get appTitle => 'Adhan Times';
+  String get appTitle => 'Vakte';
   @override
   String get tabTimes => 'Times';
   @override
