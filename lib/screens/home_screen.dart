@@ -164,48 +164,49 @@ class _HomeScreenState extends State<HomeScreen> {
         info.latitude, info.longitude, _now.add(Duration(days: dayDelta)));
   }
 
-  /// Sıradaki vakit (Güneş hariç) — her zaman bugüne göre.
-  /// Bugün bittiyse yarının imsakı. (vakit indeksi, zaman) döner.
-  (int, DateTime) get _next {
-    final times = _timesListOf(_timesForOffset(0));
-    for (var i = 0; i < times.length; i++) {
-      if (i == 1) continue; // Güneş bir namaz vakti değil.
-      if (times[i].isAfter(_now)) return (i, times[i]);
+  /// Dün, bugün ve yarının vakitleri tek bir kronolojik zaman çizgisinde.
+  /// Konum ile cihaz saat dilimi farklı olsa bile mutlak zamanlar doğrudur;
+  /// içinde bulunulan aralık ve sıradaki vakit buradan güvenle seçilir.
+  List<(int, DateTime)> get _timeline {
+    final all = <(int, DateTime)>[];
+    for (var d = -1; d <= 1; d++) {
+      final times = _timesListOf(_timesForOffset(d));
+      for (var i = 0; i < times.length; i++) {
+        all.add((i, times[i]));
+      }
     }
-    return (0, _timesForOffset(1).fajr);
+    all.sort((a, b) => a.$2.compareTo(b.$2));
+    return all;
+  }
+
+  /// Sıradaki vakit (Güneş hariç): (vakit indeksi, zaman) döner.
+  (int, DateTime) get _next {
+    for (final e in _timeline) {
+      if (e.$1 == 1) continue; // Güneş bir namaz vakti değil.
+      if (e.$2.isAfter(_now)) return e;
+    }
+    return (0, _timesForOffset(1).fajr); // Erişilmez; güvenlik için.
   }
 
   /// İçinde bulunduğumuz vakit dilimi (bugün görüntüleniyorsa):
   /// satır indeksi ve 0..1 arası ilerleme.
   ({int index, double progress})? get _currentPeriod {
     if (_dayOffset != 0) return null;
-    final times = _timesListOf(_timesForOffset(0));
+    final all = _timeline;
 
-    var index = -1;
-    for (var i = 0; i < times.length; i++) {
-      if (!times[i].isAfter(_now)) index = i;
+    var pos = -1;
+    for (var i = 0; i < all.length; i++) {
+      if (!all[i].$2.isAfter(_now)) pos = i;
     }
+    if (pos == -1 || pos == all.length - 1) return null;
 
-    DateTime start, end;
-    if (index == -1) {
-      // Gece yarısı ile imsak arası: dünün yatsısı hâlâ sürüyor.
-      index = times.length - 1;
-      start = _timesForOffset(-1).isha;
-      end = times.first;
-    } else if (index == times.length - 1) {
-      // Yatsı: yarının imsakına kadar.
-      start = times[index];
-      end = _timesForOffset(1).fajr;
-    } else {
-      start = times[index];
-      end = times[index + 1];
-    }
-
+    final start = all[pos].$2;
+    final end = all[pos + 1].$2;
     final total = end.difference(start).inSeconds;
-    if (total <= 0) return (index: index, progress: 1.0);
+    if (total <= 0) return (index: all[pos].$1, progress: 1.0);
     final progress =
         (_now.difference(start).inSeconds / total).clamp(0.0, 1.0);
-    return (index: index, progress: progress);
+    return (index: all[pos].$1, progress: progress);
   }
 
   String _countdown(DateTime to) {
@@ -510,14 +511,38 @@ class _HomeScreenState extends State<HomeScreen> {
           if (isCurrent)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(2),
-                child: LinearProgressIndicator(
-                  value: current.progress,
-                  minHeight: 4,
-                  color: progressColor,
-                  backgroundColor: progressColor.withValues(alpha: 0.15),
-                ),
+              child: Row(
+                children: [
+                  // Vaktin başından sonuna ilerleme: kendi çizdiğimiz bar,
+                  // her Flutter sürümünde/cihazda aynı görünür.
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        height: 8,
+                        color: progressColor.withValues(alpha: 0.2),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: FractionallySizedBox(
+                            widthFactor: current.progress.clamp(0.0, 1.0),
+                            child: Container(color: progressColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    NumberFormat.percentPattern(_localeCode)
+                        .format(current.progress),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: progressColor,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
               ),
             ),
         ],

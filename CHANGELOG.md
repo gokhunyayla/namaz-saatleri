@@ -4,6 +4,12 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [0.7.1] - 2026-07-02
+
+### Düzeltildi
+- Geçerli vaktin ilerleme çubuğu bazı durumlarda boş (%0) görünüyordu: vakit aralığı artık dün-bugün-yarın vakitlerinin mutlak zaman çizgisinden seçiliyor; gece yarısı ve konum/saat dilimi farkı durumları doğru çalışıyor. Sıradaki vakit (geri sayım) da aynı yöntemle hesaplanıyor
+- İlerleme çubuğu belirginleştirildi: 8 piksel kalınlık, tam dolgulu kırmızı ve yanında yüzde etiketi
+
 ## [0.7.0] - 2026-07-02
 
 ### Eklendi
