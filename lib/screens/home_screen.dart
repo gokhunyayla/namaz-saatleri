@@ -25,11 +25,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _ticker;
   DateTime _now = DateTime.now();
 
+  /// Görüntülenen günün bugüne göre farkı: 0 = bugün, -1 = dün, 1 = yarın...
+  int _dayOffset = 0;
+
   bool _notificationsOn = true;
   int _minutesBefore = 15;
 
   static const _kNotifOn = 'notifications_on';
   static const _kMinutesBefore = 'minutes_before';
+
+  DateTime get _displayedDate => _now.add(Duration(days: _dayOffset));
 
   @override
   void initState() {
@@ -39,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final now = DateTime.now();
       // Gün değiştiyse vakitleri yeniden hesapla.
       if (_now.day != now.day && widget.location.value != null) {
+        _now = now;
         _recompute(widget.location.value!);
       }
       setState(() => _now = now);
@@ -90,8 +96,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _recompute(LocationInfo info) {
-    _times = PrayerService.timesFor(info.latitude, info.longitude, _now);
+    _times =
+        PrayerService.timesFor(info.latitude, info.longitude, _displayedDate);
     setState(() {});
+  }
+
+  void _changeDay(int delta) {
+    _dayOffset = delta == 0 ? 0 : _dayOffset + delta;
+    final info = widget.location.value;
+    if (info != null) _recompute(info);
   }
 
   Future<void> _rescheduleNotifications() async {
@@ -120,28 +133,65 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ---- Vakit yardımcıları ----
 
-  List<(String, DateTime)> get _entries {
-    final t = _times!;
-    return [
-      ('İmsak', t.fajr),
-      ('Güneş', t.sunrise),
-      ('Öğle', t.dhuhr),
-      ('İkindi', t.asr),
-      ('Akşam', t.maghrib),
-      ('Yatsı', t.isha),
-    ];
+  static List<(String, DateTime)> _entriesOf(PrayerTimes t) => [
+        ('İmsak', t.fajr),
+        ('Güneş', t.sunrise),
+        ('Öğle', t.dhuhr),
+        ('İkindi', t.asr),
+        ('Akşam', t.maghrib),
+        ('Yatsı', t.isha),
+      ];
+
+  /// Görüntülenen günün vakitleri.
+  List<(String, DateTime)> get _entries => _entriesOf(_times!);
+
+  PrayerTimes _timesForOffset(int dayDelta) {
+    final info = widget.location.value!;
+    return PrayerService.timesFor(
+        info.latitude, info.longitude, _now.add(Duration(days: dayDelta)));
   }
 
-  /// Sıradaki vakit (Güneş hariç). Bugün bittiyse yarının imsakı.
+  /// Sıradaki vakit (Güneş hariç) — her zaman bugüne göre.
+  /// Bugün bittiyse yarının imsakı.
   (String, DateTime) get _next {
-    for (final e in _entries) {
+    for (final e in _entriesOf(_timesForOffset(0))) {
       if (e.$1 == 'Güneş') continue;
       if (e.$2.isAfter(_now)) return e;
     }
-    final info = widget.location.value!;
-    final tomorrow = PrayerService.timesFor(
-        info.latitude, info.longitude, _now.add(const Duration(days: 1)));
-    return ('İmsak', tomorrow.fajr);
+    return ('İmsak', _timesForOffset(1).fajr);
+  }
+
+  /// İçinde bulunduğumuz vakit dilimi (bugün görüntüleniyorsa):
+  /// satır indeksi ve 0..1 arası ilerleme.
+  ({int index, double progress})? get _currentPeriod {
+    if (_dayOffset != 0) return null;
+    final entries = _entriesOf(_timesForOffset(0));
+
+    var index = -1;
+    for (var i = 0; i < entries.length; i++) {
+      if (!entries[i].$2.isAfter(_now)) index = i;
+    }
+
+    DateTime start, end;
+    if (index == -1) {
+      // Gece yarısı ile imsak arası: dünün yatsısı hâlâ sürüyor.
+      index = entries.length - 1;
+      start = _timesForOffset(-1).isha;
+      end = entries.first.$2;
+    } else if (index == entries.length - 1) {
+      // Yatsı: yarının imsakına kadar.
+      start = entries[index].$2;
+      end = _timesForOffset(1).fajr;
+    } else {
+      start = entries[index].$2;
+      end = entries[index + 1].$2;
+    }
+
+    final total = end.difference(start).inSeconds;
+    if (total <= 0) return (index: index, progress: 1.0);
+    final progress =
+        (_now.difference(start).inSeconds / total).clamp(0.0, 1.0);
+    return (index: index, progress: progress);
   }
 
   String _countdown(DateTime to) {
@@ -213,24 +263,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final info = widget.location.value!;
     final next = _next;
-    final dateText =
-        DateFormat('d MMMM y EEEE', 'tr_TR').format(_now);
+    final current = _currentPeriod;
+    final entries = _entries;
 
     return RefreshIndicator(
       onRefresh: _refreshLocation,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _headerCard(info, next, dateText),
-          const SizedBox(height: 16),
-          ..._entries.map((e) => _timeRow(e, next)),
+          _headerCard(info, next),
+          const SizedBox(height: 8),
+          _dayNavigator(),
+          const SizedBox(height: 4),
+          ...List.generate(
+            entries.length,
+            (i) => _timeRow(i, entries[i], next, current),
+          ),
         ],
       ),
     );
   }
 
-  Widget _headerCard(
-      LocationInfo info, (String, DateTime) next, String dateText) {
+  Widget _headerCard(LocationInfo info, (String, DateTime) next) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -260,8 +314,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(dateText, style: const TextStyle(color: Colors.white70)),
           const SizedBox(height: 20),
           Text('${next.$1} vaktine kalan',
               style: const TextStyle(color: Colors.white70)),
@@ -283,34 +335,136 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _timeRow((String, DateTime) e, (String, DateTime) next) {
-    final isNext = e.$1 == next.$1 && e.$2 == next.$2;
+  /// Dün / Yarın gezinme çubuğu. Tarihe dokununca bugüne döner.
+  Widget _dayNavigator() {
+    final dateText = DateFormat('d MMMM y EEEE', 'tr_TR').format(_displayedDate);
+    final label = switch (_dayOffset) {
+      0 => 'Bugün',
+      -1 => 'Dün',
+      1 => 'Yarın',
+      final o when o < 0 => '${-o} gün önce',
+      final o => '$o gün sonra',
+    };
     final scheme = Theme.of(context).colorScheme;
-    final passed = e.$2.isBefore(_now);
+
+    return Row(
+      children: [
+        IconButton(
+          tooltip: 'Önceki gün',
+          icon: const Icon(Icons.chevron_left),
+          onPressed: () => _changeDay(-1),
+        ),
+        Expanded(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: _dayOffset != 0 ? () => _changeDay(0) : null,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Column(
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _dayOffset == 0 ? null : scheme.primary,
+                    ),
+                  ),
+                  Text(
+                    _dayOffset == 0 ? dateText : '$dateText • bugüne dön',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          tooltip: 'Sonraki gün',
+          icon: const Icon(Icons.chevron_right),
+          onPressed: () => _changeDay(1),
+        ),
+      ],
+    );
+  }
+
+  Widget _timeRow(
+    int index,
+    (String, DateTime) e,
+    (String, DateTime) next,
+    ({int index, double progress})? current,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isNext = _dayOffset == 0 && e.$1 == next.$1 && e.$2 == next.$2;
+    final isCurrent = current != null && current.index == index;
+    final passed = e.$2.isBefore(_now) && !isCurrent;
+
+    // Koyu temada daha açık, açık temada daha koyu bir kırmızı.
+    final progressColor = isDark ? Colors.red.shade300 : Colors.red.shade600;
+
     return Card(
-      elevation: 0,
-      color: isNext ? scheme.primaryContainer : scheme.surfaceContainerLow,
+      // Geçerli vakit, üzerine gelinmiş bir buton gibi "yükselir".
+      elevation: isCurrent ? 4 : 0,
+      shadowColor: isCurrent ? Colors.black.withValues(alpha: 0.4) : null,
+      color: isCurrent
+          ? scheme.surfaceContainerHighest
+          : isNext
+              ? scheme.primaryContainer
+              : scheme.surfaceContainerLow,
       margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(_icons[e.$1],
-            color: isNext ? scheme.primary : (passed ? Colors.grey : null)),
-        title: Text(
-          e.$1,
-          style: TextStyle(
-            fontWeight: isNext ? FontWeight.bold : FontWeight.normal,
-            color: passed && !isNext ? Colors.grey : null,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(
+              _icons[e.$1],
+              color: isCurrent
+                  ? progressColor
+                  : isNext
+                      ? scheme.primary
+                      : passed
+                          ? Colors.grey
+                          : null,
+            ),
+            title: Text(
+              e.$1,
+              style: TextStyle(
+                fontWeight:
+                    isNext || isCurrent ? FontWeight.bold : FontWeight.normal,
+                color: passed && !isNext ? Colors.grey : null,
+              ),
+            ),
+            trailing: Text(
+              DateFormat.Hm().format(e.$2),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight:
+                    isNext || isCurrent ? FontWeight.bold : FontWeight.w500,
+                color: isNext
+                    ? scheme.primary
+                    : passed
+                        ? Colors.grey
+                        : null,
+              ),
+            ),
           ),
-        ),
-        trailing: Text(
-          DateFormat.Hm().format(e.$2),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: isNext ? FontWeight.bold : FontWeight.w500,
-            color: isNext
-                ? scheme.primary
-                : (passed ? Colors.grey : null),
-          ),
-        ),
+          if (isCurrent)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: LinearProgressIndicator(
+                  value: current.progress,
+                  minHeight: 4,
+                  color: progressColor,
+                  backgroundColor: progressColor.withValues(alpha: 0.15),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
