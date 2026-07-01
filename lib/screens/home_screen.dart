@@ -252,30 +252,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Amiri (Nesih hattı) fontuyla beyaz hat yazısı.
-  /// Beyaz dolgu + koyu kontur: hem açık hem koyu temada net okunur.
+  /// Amiri (Nesih hattı) fontuyla hat yazısı:
+  /// koyu temada beyaz, açık temada siyah.
   Widget _calligraphy(String text) {
-    const base = TextStyle(
-      fontFamily: 'Amiri',
-      fontSize: 24,
-      height: 1.0,
-      fontWeight: FontWeight.w700,
-    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Stack(
-        children: [
-          Text(
-            text,
-            style: base.copyWith(
-              foreground: Paint()
-                ..style = PaintingStyle.stroke
-                ..strokeWidth = 2
-                ..color = Colors.black.withValues(alpha: 0.55),
-            ),
-          ),
-          Text(text, style: base.copyWith(color: Colors.white)),
-        ],
+      child: Text(
+        text,
+        style: TextStyle(
+          fontFamily: 'Amiri',
+          fontSize: 24,
+          height: 1.0,
+          fontWeight: FontWeight.w700,
+          color: isDark ? Colors.white : Colors.black,
+        ),
       ),
     );
   }

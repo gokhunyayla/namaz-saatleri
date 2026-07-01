@@ -4,6 +4,11 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [0.6.1] - 2026-07-02
+
+### Değişti
+- Başlıktaki الله ve محمد hat yazıları: koyu temada beyaz, açık temada siyah (kontur kaldırıldı)
+
 ## [0.6.0] - 2026-07-02
 
 ### Eklendi
