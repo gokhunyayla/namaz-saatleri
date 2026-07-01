@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'app_settings.dart';
 import 'screens/home_screen.dart';
 import 'screens/qibla_screen.dart';
+import 'screens/settings_screen.dart';
 import 'services/location_service.dart';
 import 'services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('tr_TR');
+  // Tüm desteklenen diller için tarih biçimlendirme verilerini yükle.
+  await initializeDateFormatting();
+  await AppSettings.instance.load();
   await NotificationService.instance.init();
   runApp(const NamazSaatleriApp());
 }
@@ -19,28 +23,37 @@ class NamazSaatleriApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Namaz Saatleri',
-      debugShowCheckedModeBanner: false,
-      locale: const Locale('tr'),
-      supportedLocales: const [Locale('tr')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00695C)),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF00695C),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      home: const RootShell(),
+    // Tema veya dil değişince tüm uygulama yeniden kurulur.
+    return ListenableBuilder(
+      listenable: AppSettings.instance,
+      builder: (context, _) {
+        final settings = AppSettings.instance;
+        return MaterialApp(
+          title: settings.strings.appTitle,
+          debugShowCheckedModeBanner: false,
+          themeMode: settings.themeMode,
+          locale: settings.locale,
+          supportedLocales: const [Locale('tr'), Locale('ar'), Locale('en')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          theme: ThemeData(
+            colorScheme:
+                ColorScheme.fromSeed(seedColor: const Color(0xFF00695C)),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF00695C),
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          home: const RootShell(),
+        );
+      },
     );
   }
 }
@@ -55,31 +68,38 @@ class RootShell extends StatefulWidget {
 class _RootShellState extends State<RootShell> {
   int _index = 0;
 
-  /// Konum iki ekran arasında paylaşılır: Vakitler ekranı alır, Kıble kullanır.
+  /// Konum ekranlar arasında paylaşılır: Vakitler ekranı alır, Kıble kullanır.
   final ValueNotifier<LocationInfo?> _location = ValueNotifier(null);
 
   @override
   Widget build(BuildContext context) {
+    final s = AppSettings.instance.strings;
     return Scaffold(
       body: IndexedStack(
         index: _index,
         children: [
           HomeScreen(location: _location),
           QiblaScreen(location: _location),
+          const SettingsScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.schedule),
-            label: 'Vakitler',
+            icon: const Icon(Icons.schedule),
+            label: s.tabTimes,
           ),
           NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore),
-            label: 'Kıble',
+            icon: const Icon(Icons.explore_outlined),
+            selectedIcon: const Icon(Icons.explore),
+            label: s.tabQibla,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: s.tabSettings,
           ),
         ],
       ),

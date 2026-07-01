@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:adhan/adhan.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../app_settings.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../services/prayer_service.dart';
@@ -20,7 +20,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   PrayerTimes? _times;
-  String? _error;
+  LocationFailure? _failure;
+  bool _genericError = false;
   bool _loading = true;
   Timer? _ticker;
   DateTime _now = DateTime.now();
@@ -28,13 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Görüntülenen günün bugüne göre farkı: 0 = bugün, -1 = dün, 1 = yarın...
   int _dayOffset = 0;
 
-  bool _notificationsOn = true;
-  int _minutesBefore = 15;
-
-  static const _kNotifOn = 'notifications_on';
-  static const _kMinutesBefore = 'minutes_before';
-
   DateTime get _displayedDate => _now.add(Duration(days: _dayOffset));
+
+  String get _localeCode => AppSettings.instance.locale.languageCode;
 
   @override
   void initState() {
@@ -49,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       setState(() => _now = now);
     });
-    _loadSettingsAndLocation();
+    _loadLocation();
   }
 
   @override
@@ -58,11 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  Future<void> _loadSettingsAndLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-    _notificationsOn = prefs.getBool(_kNotifOn) ?? true;
-    _minutesBefore = prefs.getInt(_kMinutesBefore) ?? 15;
-
+  Future<void> _loadLocation() async {
     // Önce önbellekteki konumla hemen göster, sonra güncel konumu al.
     final cached = await LocationService.loadCached();
     if (cached != null && mounted) {
@@ -75,7 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshLocation() async {
     setState(() {
-      _error = null;
+      _failure = null;
+      _genericError = false;
       if (_times == null) _loading = true;
     });
     try {
@@ -83,13 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       widget.location.value = info;
       _recompute(info);
-      await _rescheduleNotifications();
-    } catch (e) {
+      await NotificationService.instance.rescheduleFromPrefs();
+    } on LocationException catch (e) {
       if (!mounted) return;
-      // Güncel konum alınamadıysa ama önbellek varsa onunla devam et.
-      if (_times == null) {
-        _error = e.toString().replaceFirst('Exception: ', '');
-      }
+      if (_times == null) _failure = e.failure;
+    } catch (_) {
+      if (!mounted) return;
+      if (_times == null) _genericError = true;
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -102,48 +96,66 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _changeDay(int delta) {
-    _dayOffset = delta == 0 ? 0 : _dayOffset + delta;
+    _dayOffset += delta;
     final info = widget.location.value;
     if (info != null) _recompute(info);
   }
 
-  Future<void> _rescheduleNotifications() async {
+  void _setDate(DateTime date) {
+    final today = DateTime(_now.year, _now.month, _now.day);
+    final target = DateTime(date.year, date.month, date.day);
+    _dayOffset = target.difference(today).inDays;
     final info = widget.location.value;
-    if (info == null) return;
-    if (_notificationsOn) {
-      final granted = await NotificationService.instance.requestPermissions();
-      if (granted) {
-        await NotificationService.instance.scheduleAll(
-          lat: info.latitude,
-          lng: info.longitude,
-          minutesBefore: _minutesBefore,
-        );
-      }
-    } else {
-      await NotificationService.instance.cancelAll();
-    }
+    if (info != null) _recompute(info);
   }
 
-  Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kNotifOn, _notificationsOn);
-    await prefs.setInt(_kMinutesBefore, _minutesBefore);
-    await _rescheduleNotifications();
+  /// Takvim açar; seçilen güne gider. "Bugüne Dön" butonu bugünü seçer.
+  Future<void> _pickDate() async {
+    final s = AppSettings.instance.strings;
+    final now = DateTime.now();
+    final picked = await showDialog<DateTime>(
+      context: context,
+      builder: (context) => Dialog(
+        child: SizedBox(
+          width: 340,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CalendarDatePicker(
+                initialDate: _displayedDate,
+                firstDate: DateTime(now.year - 10),
+                lastDate: DateTime(now.year + 10, 12, 31),
+                onDateChanged: (d) => Navigator.of(context).pop(d),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      icon: const Icon(Icons.today),
+                      label: Text(s.backToToday),
+                      onPressed: () => Navigator.of(context).pop(now),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(s.cancel),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked != null) _setDate(picked);
   }
 
   // ---- Vakit yardımcıları ----
 
-  static List<(String, DateTime)> _entriesOf(PrayerTimes t) => [
-        ('İmsak', t.fajr),
-        ('Güneş', t.sunrise),
-        ('Öğle', t.dhuhr),
-        ('İkindi', t.asr),
-        ('Akşam', t.maghrib),
-        ('Yatsı', t.isha),
-      ];
-
-  /// Görüntülenen günün vakitleri.
-  List<(String, DateTime)> get _entries => _entriesOf(_times!);
+  static List<DateTime> _timesListOf(PrayerTimes t) =>
+      [t.fajr, t.sunrise, t.dhuhr, t.asr, t.maghrib, t.isha];
 
   PrayerTimes _timesForOffset(int dayDelta) {
     final info = widget.location.value!;
@@ -152,39 +164,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Sıradaki vakit (Güneş hariç) — her zaman bugüne göre.
-  /// Bugün bittiyse yarının imsakı.
-  (String, DateTime) get _next {
-    for (final e in _entriesOf(_timesForOffset(0))) {
-      if (e.$1 == 'Güneş') continue;
-      if (e.$2.isAfter(_now)) return e;
+  /// Bugün bittiyse yarının imsakı. (vakit indeksi, zaman) döner.
+  (int, DateTime) get _next {
+    final times = _timesListOf(_timesForOffset(0));
+    for (var i = 0; i < times.length; i++) {
+      if (i == 1) continue; // Güneş bir namaz vakti değil.
+      if (times[i].isAfter(_now)) return (i, times[i]);
     }
-    return ('İmsak', _timesForOffset(1).fajr);
+    return (0, _timesForOffset(1).fajr);
   }
 
   /// İçinde bulunduğumuz vakit dilimi (bugün görüntüleniyorsa):
   /// satır indeksi ve 0..1 arası ilerleme.
   ({int index, double progress})? get _currentPeriod {
     if (_dayOffset != 0) return null;
-    final entries = _entriesOf(_timesForOffset(0));
+    final times = _timesListOf(_timesForOffset(0));
 
     var index = -1;
-    for (var i = 0; i < entries.length; i++) {
-      if (!entries[i].$2.isAfter(_now)) index = i;
+    for (var i = 0; i < times.length; i++) {
+      if (!times[i].isAfter(_now)) index = i;
     }
 
     DateTime start, end;
     if (index == -1) {
       // Gece yarısı ile imsak arası: dünün yatsısı hâlâ sürüyor.
-      index = entries.length - 1;
+      index = times.length - 1;
       start = _timesForOffset(-1).isha;
-      end = entries.first.$2;
-    } else if (index == entries.length - 1) {
+      end = times.first;
+    } else if (index == times.length - 1) {
       // Yatsı: yarının imsakına kadar.
-      start = entries[index].$2;
+      start = times[index];
       end = _timesForOffset(1).fajr;
     } else {
-      start = entries[index].$2;
-      end = entries[index + 1].$2;
+      start = times[index];
+      end = times[index + 1];
     }
 
     final total = end.difference(start).inSeconds;
@@ -202,32 +215,28 @@ class _HomeScreenState extends State<HomeScreen> {
     return '$h:$m:$s';
   }
 
-  static const _icons = <String, IconData>{
-    'İmsak': Icons.nights_stay_outlined,
-    'Güneş': Icons.wb_twilight,
-    'Öğle': Icons.wb_sunny_outlined,
-    'İkindi': Icons.sunny_snowing,
-    'Akşam': Icons.wb_shade,
-    'Yatsı': Icons.dark_mode_outlined,
-  };
+  static const _icons = [
+    Icons.nights_stay_outlined, // İmsak
+    Icons.wb_twilight, // Güneş
+    Icons.wb_sunny_outlined, // Öğle
+    Icons.sunny_snowing, // İkindi
+    Icons.wb_shade, // Akşam
+    Icons.dark_mode_outlined, // Yatsı
+  ];
 
   // ---- UI ----
 
   @override
   Widget build(BuildContext context) {
+    final s = AppSettings.instance.strings;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Namaz Saatleri'),
+        title: Text(s.appTitle),
         actions: [
           IconButton(
-            tooltip: 'Konumu yenile',
+            tooltip: s.refreshLocation,
             icon: const Icon(Icons.my_location),
             onPressed: _refreshLocation,
-          ),
-          IconButton(
-            tooltip: 'Bildirim ayarları',
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: _showSettings,
           ),
         ],
       ),
@@ -236,10 +245,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
+    final s = AppSettings.instance.strings;
     if (_loading && _times == null) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_error != null && _times == null) {
+    if ((_failure != null || _genericError) && _times == null) {
+      final message = switch (_failure) {
+        LocationFailure.serviceDisabled => s.locationServiceOff,
+        LocationFailure.permissionDenied => s.locationPermissionDenied,
+        null => s.locationError,
+      };
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -248,12 +263,12 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               const Icon(Icons.location_off, size: 48, color: Colors.grey),
               const SizedBox(height: 16),
-              Text(_error!, textAlign: TextAlign.center),
+              Text(message, textAlign: TextAlign.center),
               const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: _refreshLocation,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Tekrar Dene'),
+                label: Text(s.retry),
               ),
             ],
           ),
@@ -264,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final info = widget.location.value!;
     final next = _next;
     final current = _currentPeriod;
-    final entries = _entries;
+    final times = _timesListOf(_times!);
 
     return RefreshIndicator(
       onRefresh: _refreshLocation,
@@ -276,15 +291,16 @@ class _HomeScreenState extends State<HomeScreen> {
           _dayNavigator(),
           const SizedBox(height: 4),
           ...List.generate(
-            entries.length,
-            (i) => _timeRow(i, entries[i], next, current),
+            times.length,
+            (i) => _timeRow(i, times[i], next, current),
           ),
         ],
       ),
     );
   }
 
-  Widget _headerCard(LocationInfo info, (String, DateTime) next) {
+  Widget _headerCard(LocationInfo info, (int, DateTime) next) {
+    final s = AppSettings.instance.strings;
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -315,7 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          Text('${next.$1} vaktine kalan',
+          Text(s.timeUntil(s.prayerNames[next.$1]),
               style: const TextStyle(color: Colors.white70)),
           Text(
             _countdown(next.$2),
@@ -327,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Text(
-            '${next.$1}: ${DateFormat.Hm().format(next.$2)}',
+            '${s.prayerNames[next.$1]}: ${DateFormat.Hm(_localeCode).format(next.$2)}',
             style: const TextStyle(color: Colors.white),
           ),
         ],
@@ -335,42 +351,54 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Dün / Yarın gezinme çubuğu. Tarihe dokununca bugüne döner.
+  /// Dün / Yarın gezinme çubuğu. Ortadaki alana dokununca takvim açılır.
   Widget _dayNavigator() {
-    final dateText = DateFormat('d MMMM y EEEE', 'tr_TR').format(_displayedDate);
+    final s = AppSettings.instance.strings;
+    final dateText =
+        DateFormat('d MMMM y EEEE', _localeCode).format(_displayedDate);
     final label = switch (_dayOffset) {
-      0 => 'Bugün',
-      -1 => 'Dün',
-      1 => 'Yarın',
-      final o when o < 0 => '${-o} gün önce',
-      final o => '$o gün sonra',
+      0 => s.today,
+      -1 => s.yesterday,
+      1 => s.tomorrow,
+      final o when o < 0 => s.daysAgo(-o),
+      final o => s.daysLater(o),
     };
     final scheme = Theme.of(context).colorScheme;
 
     return Row(
       children: [
         IconButton(
-          tooltip: 'Önceki gün',
+          tooltip: s.prevDay,
           icon: const Icon(Icons.chevron_left),
           onPressed: () => _changeDay(-1),
         ),
         Expanded(
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: _dayOffset != 0 ? () => _changeDay(0) : null,
+            onTap: _pickDate,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Column(
                 children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: _dayOffset == 0 ? null : scheme.primary,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.event,
+                          size: 16,
+                          color:
+                              _dayOffset == 0 ? Colors.grey : scheme.primary),
+                      const SizedBox(width: 6),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: _dayOffset == 0 ? null : scheme.primary,
+                        ),
+                      ),
+                    ],
                   ),
                   Text(
-                    _dayOffset == 0 ? dateText : '$dateText • bugüne dön',
+                    dateText,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
@@ -382,7 +410,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         IconButton(
-          tooltip: 'Sonraki gün',
+          tooltip: s.nextDay,
           icon: const Icon(Icons.chevron_right),
           onPressed: () => _changeDay(1),
         ),
@@ -392,15 +420,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _timeRow(
     int index,
-    (String, DateTime) e,
-    (String, DateTime) next,
+    DateTime time,
+    (int, DateTime) next,
     ({int index, double progress})? current,
   ) {
+    final s = AppSettings.instance.strings;
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isNext = _dayOffset == 0 && e.$1 == next.$1 && e.$2 == next.$2;
+    final isNext = _dayOffset == 0 && next.$1 == index && next.$2 == time;
     final isCurrent = current != null && current.index == index;
-    final passed = e.$2.isBefore(_now) && !isCurrent;
+    final passed = time.isBefore(_now) && !isCurrent;
 
     // Koyu temada daha açık, açık temada daha koyu bir kırmızı.
     final progressColor = isDark ? Colors.red.shade300 : Colors.red.shade600;
@@ -420,7 +449,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           ListTile(
             leading: Icon(
-              _icons[e.$1],
+              _icons[index],
               color: isCurrent
                   ? progressColor
                   : isNext
@@ -430,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           : null,
             ),
             title: Text(
-              e.$1,
+              s.prayerNames[index],
               style: TextStyle(
                 fontWeight:
                     isNext || isCurrent ? FontWeight.bold : FontWeight.normal,
@@ -438,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             trailing: Text(
-              DateFormat.Hm().format(e.$2),
+              DateFormat.Hm(_localeCode).format(time),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight:
@@ -465,61 +494,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  void _showSettings() {
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Bildirim Ayarları',
-                  style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 8),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Vakit hatırlatmaları'),
-                subtitle:
-                    const Text('Namaz vakti yaklaşınca bildirim gönderilir'),
-                value: _notificationsOn,
-                onChanged: (v) {
-                  setSheetState(() => _notificationsOn = v);
-                  setState(() {});
-                  _saveSettings();
-                },
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                enabled: _notificationsOn,
-                title: const Text('Kaç dakika önce?'),
-                trailing: DropdownButton<int>(
-                  value: _minutesBefore,
-                  items: const [0, 5, 10, 15, 30, 45]
-                      .map((m) => DropdownMenuItem(
-                            value: m,
-                            child: Text(m == 0 ? 'Vaktinde' : '$m dk önce'),
-                          ))
-                      .toList(),
-                  onChanged: _notificationsOn
-                      ? (v) {
-                          if (v == null) return;
-                          setSheetState(() => _minutesBefore = v);
-                          setState(() {});
-                          _saveSettings();
-                        }
-                      : null,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -4,6 +4,18 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [0.3.0] - 2026-07-01
+
+### Eklendi
+- Tarih alanına dokununca açılan takvim ile istenilen güne gitme; takvimde "Bugüne Dön" butonu
+- Alt menüye Ayarlar sekmesi
+- Görünüm seçimi: Açık / Koyu / Sistem
+- Üç dil desteği: Türkçe, Arapça (sağdan sola düzen dahil), İngilizce — cihaz dili Türkçe veya Arapça ise otomatik seçilir, diğer dillerde İngilizce; Ayarlar'dan elle değiştirilebilir
+- Bildirim metinleri seçili dilde planlanır; dil değişince yeniden planlanır
+
+### Değişti
+- Bildirim ayarları ana ekrandaki zil menüsünden Ayarlar sekmesine taşındı
+
 ## [0.2.0] - 2026-07-01
 
 ### Eklendi

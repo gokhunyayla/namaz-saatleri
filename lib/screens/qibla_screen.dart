@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 
+import '../app_settings.dart';
 import '../services/location_service.dart';
 import '../services/prayer_service.dart';
 
@@ -21,17 +22,18 @@ class _QiblaScreenState extends State<QiblaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppSettings.instance.strings;
     return Scaffold(
-      appBar: AppBar(title: const Text('Kıble Pusulası')),
+      appBar: AppBar(title: Text(s.qiblaTitle)),
       body: ValueListenableBuilder<LocationInfo?>(
         valueListenable: widget.location,
         builder: (context, info, _) {
           if (info == null) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(32),
+                padding: const EdgeInsets.all(32),
                 child: Text(
-                  'Kıble yönü için önce Vakitler ekranından konumunuzun alınması gerekiyor.',
+                  s.needLocationFirst,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -46,6 +48,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
   }
 
   Widget _compass(double qibla) {
+    final s = AppSettings.instance.strings;
     return StreamBuilder<CompassEvent>(
       stream: FlutterCompass.events,
       builder: (context, snapshot) {
@@ -54,11 +57,11 @@ class _QiblaScreenState extends State<QiblaScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (heading == null) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(32),
+              padding: const EdgeInsets.all(32),
               child: Text(
-                'Bu cihazda pusula sensörü bulunamadı.',
+                s.compassNotFound,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -84,8 +87,8 @@ class _QiblaScreenState extends State<QiblaScreen> {
             children: [
               Text(
                 aligned
-                    ? 'Kıbleye dönüksünüz'
-                    : (diff > 0 ? 'Sağa dönün' : 'Sola dönün'),
+                    ? s.facingQibla
+                    : (diff > 0 ? s.turnRight : s.turnLeft),
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge
@@ -107,6 +110,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                           qiblaAngle: qibla,
                           roseColor: scheme.onSurface,
                           qiblaColor: color,
+                          cardinals: s.cardinals,
                         ),
                       ),
                     ),
@@ -121,16 +125,16 @@ class _QiblaScreenState extends State<QiblaScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Kıble: ${qibla.toStringAsFixed(0)}°   •   Yönünüz: ${heading.toStringAsFixed(0)}°',
+                '${s.qiblaLabel}: ${qibla.toStringAsFixed(0)}°   •   ${s.headingLabel}: ${heading.toStringAsFixed(0)}°',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 8),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
-                  'Telefonu düz tutun. Doğruluk için telefonu 8 çizecek şekilde hareket ettirerek pusulayı kalibre edebilirsiniz.',
+                  s.calibrateHint,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ),
             ],
@@ -147,10 +151,14 @@ class _CompassRosePainter extends CustomPainter {
   final Color roseColor;
   final Color qiblaColor;
 
+  /// Sırayla Kuzey, Doğu, Güney, Batı harfleri (dile göre değişir).
+  final List<String> cardinals;
+
   _CompassRosePainter({
     required this.qiblaAngle,
     required this.roseColor,
     required this.qiblaColor,
+    required this.cardinals,
   });
 
   @override
@@ -179,8 +187,13 @@ class _CompassRosePainter extends CustomPainter {
       canvas.drawLine(inner, outer, tickPaint);
     }
 
-    // Yön harfleri: K (Kuzey), D (Doğu), G (Güney), B (Batı).
-    const labels = {0: 'K', 90: 'D', 180: 'G', 270: 'B'};
+    // Yön harfleri: Kuzey, Doğu, Güney, Batı (seçili dilde).
+    final labels = {
+      0: cardinals[0],
+      90: cardinals[1],
+      180: cardinals[2],
+      270: cardinals[3],
+    };
     for (final e in labels.entries) {
       final rad = e.key * math.pi / 180;
       final pos = center +
@@ -231,5 +244,6 @@ class _CompassRosePainter extends CustomPainter {
   bool shouldRepaint(_CompassRosePainter old) =>
       old.qiblaAngle != qiblaAngle ||
       old.roseColor != roseColor ||
-      old.qiblaColor != qiblaColor;
+      old.qiblaColor != qiblaColor ||
+      old.cardinals != cardinals;
 }

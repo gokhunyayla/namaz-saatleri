@@ -10,6 +10,14 @@ class LocationInfo {
   const LocationInfo(this.latitude, this.longitude, this.city);
 }
 
+/// Konum alınamama nedenleri. Arayüz bunları seçili dilde metne çevirir.
+enum LocationFailure { serviceDisabled, permissionDenied }
+
+class LocationException implements Exception {
+  final LocationFailure failure;
+  const LocationException(this.failure);
+}
+
 /// Cihaz konumunu alır, şehir adına çevirir ve son konumu önbelleğe yazar.
 /// Şehir adı çevirisi internet ister; internet yoksa koordinatlarla devam edilir.
 class LocationService {
@@ -28,7 +36,7 @@ class LocationService {
 
   static Future<LocationInfo> getCurrent() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
-      throw Exception('Konum servisleri kapalı. Lütfen telefonunuzun konum servisini açın.');
+      throw const LocationException(LocationFailure.serviceDisabled);
     }
 
     var permission = await Geolocator.checkPermission();
@@ -37,7 +45,7 @@ class LocationService {
     }
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
-      throw Exception('Konum izni verilmedi. Ayarlardan uygulamaya konum izni verebilirsiniz.');
+      throw const LocationException(LocationFailure.permissionDenied);
     }
 
     final pos = await Geolocator.getCurrentPosition(

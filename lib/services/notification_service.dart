@@ -1,9 +1,12 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../app_settings.dart';
+import 'location_service.dart';
 import 'prayer_service.dart';
 
 /// Yerel bildirimlerle namaz vakti hatırlatmaları.
@@ -53,6 +56,28 @@ class NotificationService {
 
   Future<void> cancelAll() => _plugin.cancelAll();
 
+  /// Kayıtlı ayarları ve önbellekteki konumu okuyarak bildirimleri yeniden
+  /// planlar. Ayar ekranı ve ana ekran aynı mantığı buradan kullanır;
+  /// dil değişince bildirim metinleri de seçili dilde yenilenir.
+  Future<void> rescheduleFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final on = prefs.getBool('notifications_on') ?? true;
+    final minutes = prefs.getInt('minutes_before') ?? 15;
+    final info = await LocationService.loadCached();
+
+    if (!on || info == null) {
+      await cancelAll();
+      return;
+    }
+    final granted = await requestPermissions();
+    if (!granted) return;
+    await scheduleAll(
+      lat: info.latitude,
+      lng: info.longitude,
+      minutesBefore: minutes,
+    );
+  }
+
   /// Önümüzdeki [days] gün için 5 vaktin hatırlatmalarını planlar.
   /// [minutesBefore] 0 ise vakit girdiğinde, değilse vakitten o kadar dakika
   /// önce bildirim gelir. iOS'un 64 bekleyen bildirim sınırına takılmamak için
@@ -64,18 +89,21 @@ class NotificationService {
     int days = 5,
   }) async {
     await _plugin.cancelAll();
+    final s = AppSettings.instance.strings;
+    final localeCode = AppSettings.instance.locale.languageCode;
     final now = DateTime.now();
     var id = 0;
 
     for (var d = 0; d <= days; d++) {
       final date = now.add(Duration(days: d));
       final times = PrayerService.timesFor(lat, lng, date);
+      // Güneş (doğuş) hariç 5 vakit: İmsak, Öğle, İkindi, Akşam, Yatsı.
       final entries = <String, DateTime>{
-        'İmsak': times.fajr,
-        'Öğle': times.dhuhr,
-        'İkindi': times.asr,
-        'Akşam': times.maghrib,
-        'Yatsı': times.isha,
+        s.prayerNames[0]: times.fajr,
+        s.prayerNames[2]: times.dhuhr,
+        s.prayerNames[3]: times.asr,
+        s.prayerNames[4]: times.maghrib,
+        s.prayerNames[5]: times.isha,
       };
 
       for (final e in entries.entries) {
@@ -86,11 +114,11 @@ class NotificationService {
           id++;
           continue;
         }
-        final timeText = DateFormat.Hm().format(e.value);
+        final timeText = DateFormat.Hm(localeCode).format(e.value);
         final body = minutesBefore == 0
-            ? '${e.key} vakti girdi ($timeText).'
-            : '${e.key} vaktine $minutesBefore dakika kaldı ($timeText).';
-        await _schedule(id++, '${e.key} Vakti', body, fireAt);
+            ? s.notifBodyNow(e.key, timeText)
+            : s.notifBodyBefore(e.key, minutesBefore, timeText);
+        await _schedule(id++, s.notifTitle(e.key), body, fireAt);
       }
     }
   }
