@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:adhan/adhan.dart';
 import 'package:flutter/material.dart';
@@ -231,16 +232,41 @@ class _HomeScreenState extends State<HomeScreen> {
     final s = AppSettings.instance.strings;
     return Scaffold(
       appBar: AppBar(
-        title: Text(s.appTitle),
-        actions: [
-          IconButton(
-            tooltip: s.refreshLocation,
-            icon: const Icon(Icons.my_location),
-            onPressed: _refreshLocation,
+        centerTitle: true,
+        // Hat yazıları dil yönünden bağımsız sabit dursun:
+        // sağda "Allah", solda "Muhammed".
+        title: Directionality(
+          textDirection: ui.TextDirection.ltr,
+          child: Row(
+            children: [
+              _calligraphy('محمد'),
+              Expanded(
+                child: Text(s.appTitle, textAlign: TextAlign.center),
+              ),
+              _calligraphy('الله'),
+            ],
           ),
-        ],
+        ),
       ),
       body: _buildBody(),
+    );
+  }
+
+  /// Amiri (Nesih hattı) fontuyla altın renkli hat yazısı.
+  Widget _calligraphy(String text) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontFamily: 'Amiri',
+          fontSize: 24,
+          height: 1.0,
+          fontWeight: FontWeight.w700,
+          color: isDark ? const Color(0xFFEECF6D) : const Color(0xFF9A7B1A),
+        ),
+      ),
     );
   }
 

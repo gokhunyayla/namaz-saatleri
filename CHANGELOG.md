@@ -4,6 +4,16 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [0.4.0] - 2026-07-01
+
+### Eklendi
+- Uygulama logosu: teal degrade üzerinde altın hilal ve beyaz cami silueti; iOS ve Android (adaptif dahil) tüm ikon boyutları üretildi
+- Ana ekran başlığının sağında الله (Allah), solunda محمد (Muhammed) hat yazıları — Amiri Nesih hattı fontuyla, altın renkli, açık/koyu tema uyumlu
+
+### Değişti
+- Uygulama adı "Namaz Saatleri" → "Ezan Saatleri" (Arapça: مواقيت الأذان, İngilizce: Adhan Times)
+- Konum yenileme butonu üst çubuktan kaldırıldı; listeyi aşağı çekerek yenileme aynı işi görüyor
+
 ## [0.3.0] - 2026-07-01
 
 ### Eklendi
