@@ -3,6 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'app_settings.dart';
+import 'data/prayer_guide.dart';
+import 'screens/guide_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/qibla_screen.dart';
 import 'screens/settings_screen.dart';
@@ -82,6 +84,7 @@ class _RootShellState extends State<RootShell> {
           HomeScreen(location: _location),
           QiblaScreen(location: _location),
           VerseScreen(location: _location),
+          const GuideScreen(),
           const SettingsScreen(),
         ],
       ),
@@ -102,6 +105,11 @@ class _RootShellState extends State<RootShell> {
             icon: const Icon(Icons.auto_stories_outlined),
             selectedIcon: const Icon(Icons.auto_stories),
             label: s.tabVerse,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.self_improvement_outlined),
+            selectedIcon: const Icon(Icons.self_improvement),
+            label: guideL10nFor(AppSettings.instance.lang).tabGuide,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),

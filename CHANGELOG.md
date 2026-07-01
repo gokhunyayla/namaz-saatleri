@@ -4,6 +4,13 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [0.7.0] - 2026-07-02
+
+### Eklendi
+- "Namaz" sekmesi (Namaz Nasıl Kılınır): her vakit için bölüm bölüm (sünnet/farz/vitir) ve rekat rekat kılınış rehberi — hangi rekatta ne okunacağı, rükû/secde/doğrulma tesbihleri dahil (Hanefî mezhebi, Diyanet İlmihali usulü)
+- Sureler ve Dualar bölümü: Sübhâneke, Ettehiyyâtü, Salli-Bârik, Rabbenâ duaları, Kunut 1-2 ile Fâtiha'dan Nâs'a 11 namaz suresi — Arapça (Amiri hattı) + seçili dilde okunuş + meal (Arapça arayüzde okunuş gizlenir)
+- Rehber kuralları birim testlerle doğrulandı: farzın 3-4. rekatında zammı sure okunmaz, vitirde kunut zammı sure ile rükû arasındadır, gayr-i müekkede sünnetlerin oturuş farkları vb.
+
 ## [0.6.1] - 2026-07-02
 
 ### Değişti
