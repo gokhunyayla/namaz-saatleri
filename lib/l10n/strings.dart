@@ -103,7 +103,7 @@ class StringsTr extends Strings {
   @override
   String get tabQibla => 'Kıble';
   @override
-  String get tabVerse => 'Vaktin Ayeti';
+  String get tabVerse => 'Vakte Dair';
   @override
   String get tabSettings => 'Ayarlar';
 
@@ -209,7 +209,7 @@ class StringsTr extends Strings {
       '$prayer vaktine $minutes dakika kaldı ($time).';
 
   @override
-  String get verseTitle => 'Vaktin Ayeti';
+  String get verseTitle => 'Vakte Dair';
   @override
   String verseOfPeriod(String prayer) => '$prayer vaktinin ayeti';
   @override
@@ -265,7 +265,7 @@ class StringsAr extends Strings {
   @override
   String get tabQibla => 'القبلة';
   @override
-  String get tabVerse => 'آية الوقت';
+  String get tabVerse => 'حول الوقت';
   @override
   String get tabSettings => 'الإعدادات';
 
@@ -371,7 +371,7 @@ class StringsAr extends Strings {
       'بقي $minutes دقيقة على وقت $prayer ($time).';
 
   @override
-  String get verseTitle => 'آية الوقت';
+  String get verseTitle => 'حول الوقت';
   @override
   String verseOfPeriod(String prayer) => 'آية وقت $prayer';
   @override
@@ -424,7 +424,7 @@ class StringsEn extends Strings {
   @override
   String get tabQibla => 'Qibla';
   @override
-  String get tabVerse => 'Verse';
+  String get tabVerse => 'This Hour';
   @override
   String get tabSettings => 'Settings';
 
@@ -530,7 +530,7 @@ class StringsEn extends Strings {
       '$minutes minutes until $prayer ($time).';
 
   @override
-  String get verseTitle => 'Verse of the Hour';
+  String get verseTitle => 'This Hour';
   @override
   String verseOfPeriod(String prayer) => 'Verse for $prayer time';
   @override

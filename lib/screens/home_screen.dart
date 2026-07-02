@@ -7,7 +7,10 @@ import 'package:intl/intl.dart';
 
 import '../app_settings.dart';
 import '../data/period_info.dart';
+import '../l10n/strings.dart';
+import '../data/thirty_two_fard.dart';
 import '../screens/esma_screen.dart';
+import '../screens/fard_screen.dart';
 import '../screens/prophet_screen.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
@@ -369,6 +372,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ...List.generate(
             times.length,
             (i) => _timeRow(i, times[i], current),
+          ),
+          const SizedBox(height: 6),
+          // Yatsı'nın altındaki boşluk: 32 Farz sayfası kısayolu.
+          FilledButton.tonalIcon(
+            icon: const Icon(Icons.checklist),
+            label: Text(switch (AppSettings.instance.lang) {
+              AppLang.tr => fardSectionTitleTr,
+              AppLang.ar => fardSectionTitleAr,
+              AppLang.en => fardSectionTitleEn,
+            }),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const FardScreen()),
+            ),
           ),
         ],
       ),
