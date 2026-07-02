@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -8,6 +7,7 @@ import '../data/verses.dart';
 import '../l10n/strings.dart';
 import '../services/location_service.dart';
 import '../services/prayer_service.dart';
+import '../widgets/verse_card.dart';
 
 /// Vaktin Ayeti: içinde bulunulan vakte göre Kur'an-ı Kerim'den,
 /// o vakitle ilgili bir ayet gösterir. Ayetler uygulamaya gömülü,
@@ -55,9 +55,13 @@ class _VerseScreenState extends State<VerseScreen> {
               ),
             );
           }
+          final now = DateTime.now();
           final index = PrayerService.currentPeriodIndex(
-              info.latitude, info.longitude, DateTime.now());
-          return _verseView(s, index, versesByPeriod[index]);
+              info.latitude, info.longitude, now);
+          // Aynı gün içinde sabit kalsın, her gün sıradaki ayete geçsin.
+          final list = versesByPeriod[index];
+          final dayOfYear = now.difference(DateTime(now.year)).inDays;
+          return _verseView(s, index, list[dayOfYear % list.length]);
         },
       ),
     );
@@ -65,18 +69,6 @@ class _VerseScreenState extends State<VerseScreen> {
 
   Widget _verseView(Strings s, int periodIndex, Verse verse) {
     final scheme = Theme.of(context).colorScheme;
-    final lang = AppSettings.instance.lang;
-
-    final translation = switch (lang) {
-      AppLang.tr => verse.tr,
-      AppLang.en => verse.en,
-      AppLang.ar => null, // Arapçada ayetin kendisi zaten gösteriliyor.
-    };
-    final reference = switch (lang) {
-      AppLang.tr => verse.refTr,
-      AppLang.en => verse.refEn,
-      AppLang.ar => verse.refAr,
-    };
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -97,70 +89,7 @@ class _VerseScreenState extends State<VerseScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        // Ayet kartı
-        Card(
-          elevation: 0,
-          color: scheme.surfaceContainerLow,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: scheme.outlineVariant),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                // Arapça metin her zaman gösterilir.
-                Directionality(
-                  textDirection: ui.TextDirection.rtl,
-                  child: Text(
-                    verse.arabic,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: 'Amiri',
-                      fontSize: 26,
-                      height: 2.0,
-                    ),
-                  ),
-                ),
-                if (translation != null) ...[
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(child: Divider(color: scheme.outlineVariant)),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          s.translationLabel,
-                          style: TextStyle(
-                            color: scheme.primary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                      Expanded(child: Divider(color: scheme.outlineVariant)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    translation,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16, height: 1.6),
-                  ),
-                ],
-                const SizedBox(height: 20),
-                Text(
-                  reference,
-                  style: TextStyle(
-                    color: scheme.primary,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        VerseCard(verse: verse),
       ],
     );
   }

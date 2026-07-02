@@ -72,6 +72,7 @@ abstract class Strings {
   String get verseTitle;
   String verseOfPeriod(String prayer);
   String get translationLabel;
+  String get anotherVerse;
 
   String get atPrayerTime;
   String get playAdhan;
@@ -201,6 +202,8 @@ class StringsTr extends Strings {
   String verseOfPeriod(String prayer) => '$prayer vaktinin ayeti';
   @override
   String get translationLabel => 'Meali';
+  @override
+  String get anotherVerse => 'Başka Ayet';
 
   @override
   String get atPrayerTime => 'Vakit girdiğinde';
@@ -335,6 +338,8 @@ class StringsAr extends Strings {
   String verseOfPeriod(String prayer) => 'آية وقت $prayer';
   @override
   String get translationLabel => 'المعنى';
+  @override
+  String get anotherVerse => 'آية أخرى';
 
   @override
   String get atPrayerTime => 'عند دخول الوقت';
@@ -469,6 +474,8 @@ class StringsEn extends Strings {
   String verseOfPeriod(String prayer) => 'Verse for $prayer time';
   @override
   String get translationLabel => 'Meaning';
+  @override
+  String get anotherVerse => 'Another Verse';
 
   @override
   String get atPrayerTime => 'At prayer time';

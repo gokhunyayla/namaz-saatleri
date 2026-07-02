@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_settings.dart';
 import 'data/prayer_guide.dart';
@@ -18,11 +20,16 @@ Future<void> main() async {
   await initializeDateFormatting();
   await AppSettings.instance.load();
   await NotificationService.instance.init();
-  runApp(const NamazSaatleriApp());
+  // Mağaza ekran görüntüsü alırken sekme seçmek için gizli ayar (vars. 0).
+  final prefs = await SharedPreferences.getInstance();
+  final initialTab = prefs.getInt('debug_initial_tab') ?? 0;
+  runApp(NamazSaatleriApp(initialTab: initialTab));
 }
 
 class NamazSaatleriApp extends StatelessWidget {
-  const NamazSaatleriApp({super.key});
+  final int initialTab;
+
+  const NamazSaatleriApp({super.key, this.initialTab = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +61,7 @@ class NamazSaatleriApp extends StatelessWidget {
             ),
             useMaterial3: true,
           ),
-          home: const RootShell(),
+          home: RootShell(initialTab: initialTab),
         );
       },
     );
@@ -62,14 +69,16 @@ class NamazSaatleriApp extends StatelessWidget {
 }
 
 class RootShell extends StatefulWidget {
-  const RootShell({super.key});
+  final int initialTab;
+
+  const RootShell({super.key, this.initialTab = 0});
 
   @override
   State<RootShell> createState() => _RootShellState();
 }
 
 class _RootShellState extends State<RootShell> {
-  int _index = 0;
+  late int _index = widget.initialTab.clamp(0, 4);
 
   /// Konum ekranlar arasında paylaşılır: Vakitler ekranı alır, Kıble kullanır.
   final ValueNotifier<LocationInfo?> _location = ValueNotifier(null);
@@ -107,8 +116,7 @@ class _RootShellState extends State<RootShell> {
             label: s.tabVerse,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.self_improvement_outlined),
-            selectedIcon: const Icon(Icons.self_improvement),
+            icon: const FaIcon(FontAwesomeIcons.personPraying, size: 22),
             label: guideL10nFor(AppSettings.instance.lang).tabGuide,
           ),
           NavigationDestination(

@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../app_settings.dart';
+import '../data/verses.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../services/prayer_service.dart';
+import '../widgets/verse_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final ValueNotifier<LocationInfo?> location;
@@ -29,6 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Görüntülenen günün bugüne göre farkı: 0 = bugün, -1 = dün, 1 = yarın...
   int _dayOffset = 0;
+
+  /// Vakit satırına her dokunuşta o vaktin bir sonraki ayeti gösterilsin.
+  final Map<int, int> _verseCursor = {};
 
   DateTime get _displayedDate => _now.add(Duration(days: _dayOffset));
 
@@ -320,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 4),
           ...List.generate(
             times.length,
-            (i) => _timeRow(i, times[i], next, current),
+            (i) => _timeRow(i, times[i], current),
           ),
         ],
       ),
@@ -446,16 +451,69 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Vakte ait ayeti modalda gösterir. Aynı vakte her yeni dokunuşta
+  /// (veya modaldaki "Başka Ayet" ile) listedeki sıradaki ayete geçilir.
+  void _showVerseModal(int index) {
+    final s = AppSettings.instance.strings;
+    final verses = versesByPeriod[index];
+    var cursor = _verseCursor[index] ?? 0;
+    _verseCursor[index] = cursor + 1;
+
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) {
+        final scheme = Theme.of(context).colorScheme;
+        return StatefulBuilder(
+          builder: (context, setSheetState) => SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Chip(
+                    avatar:
+                        Icon(Icons.access_time, size: 18, color: scheme.primary),
+                    label: Text(
+                      s.verseOfPeriod(s.prayerNames[index]),
+                      style: TextStyle(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    backgroundColor:
+                        scheme.primaryContainer.withValues(alpha: 0.5),
+                    side: BorderSide.none,
+                  ),
+                  const SizedBox(height: 12),
+                  VerseCard(verse: verses[cursor % verses.length]),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    icon: const Icon(Icons.refresh),
+                    label: Text(s.anotherVerse),
+                    onPressed: () {
+                      setSheetState(() => cursor++);
+                      _verseCursor[index] = cursor + 1;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _timeRow(
     int index,
     DateTime time,
-    (int, DateTime) next,
     ({int index, double progress})? current,
   ) {
     final s = AppSettings.instance.strings;
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isNext = _dayOffset == 0 && next.$1 == index && next.$2 == time;
     final isCurrent = current != null && current.index == index;
     final passed = time.isBefore(_now) && !isCurrent;
 
@@ -468,43 +526,34 @@ class _HomeScreenState extends State<HomeScreen> {
       shadowColor: isCurrent ? Colors.black.withValues(alpha: 0.4) : null,
       color: isCurrent
           ? scheme.surfaceContainerHighest
-          : isNext
-              ? scheme.primaryContainer
-              : scheme.surfaceContainerLow,
+          : scheme.surfaceContainerLow,
       margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
+            onTap: () => _showVerseModal(index),
             leading: Icon(
               _icons[index],
               color: isCurrent
                   ? progressColor
-                  : isNext
-                      ? scheme.primary
-                      : passed
-                          ? Colors.grey
-                          : null,
+                  : passed
+                      ? Colors.grey
+                      : null,
             ),
             title: Text(
               s.prayerNames[index],
               style: TextStyle(
-                fontWeight:
-                    isNext || isCurrent ? FontWeight.bold : FontWeight.normal,
-                color: passed && !isNext ? Colors.grey : null,
+                fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                color: passed ? Colors.grey : null,
               ),
             ),
             trailing: Text(
               DateFormat.Hm(_localeCode).format(time),
               style: TextStyle(
                 fontSize: 18,
-                fontWeight:
-                    isNext || isCurrent ? FontWeight.bold : FontWeight.w500,
-                color: isNext
-                    ? scheme.primary
-                    : passed
-                        ? Colors.grey
-                        : null,
+                fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
+                color: passed ? Colors.grey : null,
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../app_settings.dart';
 import '../data/prayer_guide.dart';
@@ -22,11 +23,13 @@ class GuideScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _sectionTitle(context, g.prayersSection, Icons.self_improvement),
+          _sectionTitle(context, g.prayersSection,
+              const FaIcon(FontAwesomeIcons.personPraying, size: 18)),
           const SizedBox(height: 4),
           ...prayerGuides.map((def) => _prayerTile(context, g, def)),
           const SizedBox(height: 20),
-          _sectionTitle(context, g.textsSection, Icons.menu_book_outlined),
+          _sectionTitle(context, g.textsSection,
+              const Icon(Icons.menu_book_outlined, size: 20)),
           const SizedBox(height: 4),
           _groupHeader(context, g.duasGroup),
           ...prayerDuas.map((t) => _textTile(context, g, t)),
@@ -43,11 +46,14 @@ class GuideScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionTitle(BuildContext context, String text, IconData icon) {
+  Widget _sectionTitle(BuildContext context, String text, Widget icon) {
     final scheme = Theme.of(context).colorScheme;
     return Row(
       children: [
-        Icon(icon, size: 20, color: scheme.primary),
+        IconTheme(
+          data: IconThemeData(color: scheme.primary),
+          child: icon,
+        ),
         const SizedBox(width: 8),
         Text(
           text,
@@ -160,8 +166,8 @@ class PrayerGuideDetailScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.self_improvement,
-                      size: 20, color: scheme.onPrimaryContainer),
+                  FaIcon(FontAwesomeIcons.personPraying,
+                      size: 18, color: scheme.onPrimaryContainer),
                   const SizedBox(width: 8),
                   Text(
                     '${g.partLabel(part.kind)} • ${g.rakatCount(part.rakats)}',
