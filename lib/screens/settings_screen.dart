@@ -148,6 +148,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   : null,
             ),
           ),
+          // Bildirim testi: ezan sesi + bildirim sesi + hatırlatma.
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.notification_add_outlined,
+                color: Theme.of(context).colorScheme.primary),
+            title: Text(s.testNotifications),
+            subtitle: Text(s.testNotificationsSubtitle),
+            trailing: const Icon(Icons.play_arrow),
+            onTap: () async {
+              final ok = await NotificationService.instance
+                  .scheduleTestNotifications();
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      ok ? s.testScheduled : s.notifPermissionDenied),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

@@ -75,6 +75,17 @@ abstract class Strings {
   String get translitLabel;
   String get anotherVerse;
 
+  String get testNotifications;
+  String get testNotificationsSubtitle;
+  String get testScheduled;
+  String get notifPermissionDenied;
+  String get testAdhanTitle;
+  String get testAdhanBody;
+  String get testDefaultTitle;
+  String get testDefaultBody;
+  String get testReminderTitle;
+  String get testReminderBody;
+
   String get atPrayerTime;
   String get playAdhan;
   String get notificationSound;
@@ -207,6 +218,30 @@ class StringsTr extends Strings {
   String get translitLabel => 'Okunuşu';
   @override
   String get anotherVerse => 'Başka Ayet';
+  @override
+  String get testNotifications => 'Bildirimleri Test Et';
+  @override
+  String get testNotificationsSubtitle =>
+      '1 dk sonra ezan sesli, 2 dk sonra bildirim sesli, 3 dk sonra hatırlatma bildirimi gelir';
+  @override
+  String get testScheduled =>
+      'Test bildirimleri planlandı. Ekranı kilitleyip bekleyebilirsiniz.';
+  @override
+  String get notifPermissionDenied =>
+      'Bildirim izni verilmedi. Telefon ayarlarından izin verebilirsiniz.';
+  @override
+  String get testAdhanTitle => 'Vakit Bildirimi (Test)';
+  @override
+  String get testAdhanBody => 'Ezan sesli vakit bildirimi böyle gelir.';
+  @override
+  String get testDefaultTitle => 'Vakit Bildirimi (Test)';
+  @override
+  String get testDefaultBody => 'Bildirim sesli vakit bildirimi böyle gelir.';
+  @override
+  String get testReminderTitle => 'Vakit Hatırlatması (Test)';
+  @override
+  String get testReminderBody =>
+      'Vakitten önce gelen hatırlatma bildirimi böyle gelir.';
 
   @override
   String get atPrayerTime => 'Vakit girdiğinde';
@@ -345,6 +380,27 @@ class StringsAr extends Strings {
   String get translitLabel => 'النطق';
   @override
   String get anotherVerse => 'آية أخرى';
+  @override
+  String get testNotifications => 'اختبار الإشعارات';
+  @override
+  String get testNotificationsSubtitle =>
+      'بعد دقيقة إشعار بصوت الأذان، وبعد دقيقتين بصوت التنبيه، وبعد ثلاث دقائق تذكير';
+  @override
+  String get testScheduled => 'تمت جدولة إشعارات الاختبار. يمكنك قفل الشاشة والانتظار.';
+  @override
+  String get notifPermissionDenied => 'لم يُمنح إذن الإشعارات. يمكنك منحه من إعدادات الهاتف.';
+  @override
+  String get testAdhanTitle => 'إشعار الوقت (اختبار)';
+  @override
+  String get testAdhanBody => 'هكذا يصل إشعار الوقت بصوت الأذان.';
+  @override
+  String get testDefaultTitle => 'إشعار الوقت (اختبار)';
+  @override
+  String get testDefaultBody => 'هكذا يصل إشعار الوقت بصوت التنبيه.';
+  @override
+  String get testReminderTitle => 'تذكير قبل الوقت (اختبار)';
+  @override
+  String get testReminderBody => 'هكذا يصل التذكير قبل دخول الوقت.';
 
   @override
   String get atPrayerTime => 'عند دخول الوقت';
@@ -483,6 +539,29 @@ class StringsEn extends Strings {
   String get translitLabel => 'Transliteration';
   @override
   String get anotherVerse => 'Another Verse';
+  @override
+  String get testNotifications => 'Test Notifications';
+  @override
+  String get testNotificationsSubtitle =>
+      'In 1 min: adhan sound, 2 min: notification sound, 3 min: reminder';
+  @override
+  String get testScheduled =>
+      'Test notifications scheduled. You can lock the screen and wait.';
+  @override
+  String get notifPermissionDenied =>
+      'Notification permission not granted. You can grant it in phone Settings.';
+  @override
+  String get testAdhanTitle => 'Prayer Time (Test)';
+  @override
+  String get testAdhanBody => 'This is how the adhan-sound notification arrives.';
+  @override
+  String get testDefaultTitle => 'Prayer Time (Test)';
+  @override
+  String get testDefaultBody => 'This is how the default-sound notification arrives.';
+  @override
+  String get testReminderTitle => 'Prayer Reminder (Test)';
+  @override
+  String get testReminderBody => 'This is how the pre-prayer reminder arrives.';
 
   @override
   String get atPrayerTime => 'At prayer time';

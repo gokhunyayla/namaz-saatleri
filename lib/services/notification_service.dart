@@ -144,6 +144,25 @@ class NotificationService {
     }
   }
 
+  /// Bildirim testi: 1 dk sonra ezan sesli, 2 dk sonra bildirim sesli
+  /// vakit bildirimi, 3 dk sonra ön hatırlatma bildirimi planlar.
+  Future<bool> scheduleTestNotifications() async {
+    final granted = await requestPermissions();
+    if (!granted) return false;
+    final s = AppSettings.instance.strings;
+    final now = DateTime.now();
+    await _schedule(9001, s.testAdhanTitle, s.testAdhanBody,
+        now.add(const Duration(minutes: 1)),
+        adhan: true);
+    await _schedule(9002, s.testDefaultTitle, s.testDefaultBody,
+        now.add(const Duration(minutes: 2)),
+        adhan: false);
+    await _schedule(9003, s.testReminderTitle, s.testReminderBody,
+        now.add(const Duration(minutes: 3)),
+        adhan: false);
+    return true;
+  }
+
   Future<void> _schedule(int id, String title, String body, DateTime at,
       {required bool adhan}) async {
     // Ezan sesli bildirimler ayrı bir Android kanalında: kanal sesi
