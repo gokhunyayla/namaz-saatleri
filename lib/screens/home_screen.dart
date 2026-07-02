@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../app_settings.dart';
 import '../data/period_info.dart';
 import '../screens/esma_screen.dart';
+import '../screens/prophet_screen.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../services/prayer_service.dart';
@@ -273,7 +274,14 @@ class _HomeScreenState extends State<HomeScreen> {
           textDirection: ui.TextDirection.ltr,
           child: Row(
             children: [
-              _calligraphy('محمد'),
+              // Dokununca Hz. Muhammed'in hayatı sayfası açılır.
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ProphetScreen()),
+                ),
+                child: _calligraphy('محمد'),
+              ),
               Expanded(
                 child: Text(s.appTitle, textAlign: TextAlign.center),
               ),

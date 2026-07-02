@@ -25,6 +25,11 @@ class VerseCard extends StatelessWidget {
       AppLang.en => verse.en,
       AppLang.ar => null, // Arapçada ayetin kendisi zaten gösteriliyor.
     };
+    final translit = switch (lang) {
+      AppLang.tr => verse.translitTr,
+      AppLang.en => verse.translitEn,
+      AppLang.ar => null,
+    };
     final reference = switch (lang) {
       AppLang.tr => verse.refTr,
       AppLang.en => verse.refEn,
@@ -56,6 +61,17 @@ class VerseCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (translit != null) ...[
+              const SizedBox(height: 20),
+              _labelDivider(scheme, s.translitLabel),
+              const SizedBox(height: 12),
+              Text(
+                translit,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontSize: 15, height: 1.6, fontStyle: FontStyle.italic),
+              ),
+            ],
             if (translation != null) ...[
               const SizedBox(height: 20),
               Row(
@@ -94,6 +110,26 @@ class VerseCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _labelDivider(ColorScheme scheme, String label) {
+    return Row(
+      children: [
+        Expanded(child: Divider(color: scheme.outlineVariant)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: scheme.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        Expanded(child: Divider(color: scheme.outlineVariant)),
+      ],
     );
   }
 }
