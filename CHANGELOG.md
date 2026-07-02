@@ -4,6 +4,13 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [1.0.0] - 2026-07-02
+
+### Eklendi
+- App Store sürümü: 3 dilli mağaza metinleri, ekran görüntüleri, gizlilik politikası
+- GitHub tag → TestFlight otomasyonu (self-hosted runner, yerel derleme)
+- Şifreleme muafiyeti beyanı (ITSAppUsesNonExemptEncryption)
+
 ## [0.7.1] - 2026-07-02
 
 ### Düzeltildi

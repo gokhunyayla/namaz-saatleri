@@ -1,0 +1,34 @@
+name: TestFlight
+
+# vX.Y.Z etiketi puşlanınca BU MAC'teki self-hosted runner derler ve
+# TestFlight'a yükler. GitHub bulut dakikası kullanılmaz (maliyet kuralı).
+# İmzalama ve yükleme, bu Mac'te oturum açık Xcode hesabıyla yapılır.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  testflight:
+    runs-on: [self-hosted, macos-local]
+    timeout-minutes: 60
+    env:
+      PATH: /opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bağımlılıklar
+        run: flutter pub get
+
+      - name: Testler
+        run: flutter test
+
+      - name: IPA derle (App Store imzalı)
+        run: flutter build ipa --release
+
+      - name: App Store Connect'e yükle
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportOptionsPlist ios/ExportOptionsUpload.plist \
+            -allowProvisioningUpdates
