@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../app_settings.dart';
-import '../data/verses.dart';
+import '../data/period_info.dart';
+import '../screens/esma_screen.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../services/prayer_service.dart';
-import '../widgets/verse_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final ValueNotifier<LocationInfo?> location;
@@ -32,8 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Görüntülenen günün bugüne göre farkı: 0 = bugün, -1 = dün, 1 = yarın...
   int _dayOffset = 0;
 
-  /// Vakit satırına her dokunuşta o vaktin bir sonraki ayeti gösterilsin.
-  final Map<int, int> _verseCursor = {};
 
   DateTime get _displayedDate => _now.add(Duration(days: _dayOffset));
 
@@ -279,7 +277,14 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: Text(s.appTitle, textAlign: TextAlign.center),
               ),
-              _calligraphy('الله'),
+              // Dokununca Esmâü'l-Hüsnâ (99 isim) sayfası açılır.
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const EsmaScreen()),
+                ),
+                child: _calligraphy('الله'),
+              ),
             ],
           ),
         ),
@@ -347,12 +352,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return RefreshIndicator(
       onRefresh: _refreshLocation,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         children: [
           _headerCard(info, next),
-          const SizedBox(height: 8),
-          _dayNavigator(),
           const SizedBox(height: 4),
+          _dayNavigator(),
+          const SizedBox(height: 2),
           ...List.generate(
             times.length,
             (i) => _timeRow(i, times[i], current),
@@ -366,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final s = AppSettings.instance.strings;
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
@@ -393,14 +398,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           Text(s.timeUntil(s.prayerNames[next.$1]),
               style: const TextStyle(color: Colors.white70)),
           Text(
             _countdown(next.$2),
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 44,
+              fontSize: 34,
               fontWeight: FontWeight.bold,
               fontFeatures: [FontFeature.tabularFigures()],
             ),
@@ -440,7 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(12),
             onTap: _pickDate,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
+              padding: const EdgeInsets.symmetric(vertical: 2),
               child: Column(
                 children: [
                   Row(
@@ -481,58 +486,126 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Vakte ait ayeti modalda gösterir. Aynı vakte her yeni dokunuşta
-  /// (veya modaldaki "Başka Ayet" ile) listedeki sıradaki ayete geçilir.
-  void _showVerseModal(int index) {
+  /// Vakit bilgi modalı: giriş/çıkış saati, kalan süre, anlam ve kerahat.
+  void _showPeriodInfoModal(int index) {
     final s = AppSettings.instance.strings;
-    final verses = versesByPeriod[index];
-    var cursor = _verseCursor[index] ?? 0;
-    _verseCursor[index] = cursor + 1;
+    final info = periodInfoFor(AppSettings.instance.lang);
+    final locale = _localeCode;
 
+    // Görüntülenen günün vakitleri üzerinden dilimin sınırları.
+    final dayTimes = _timesListOf(_timesForOffset(_dayOffset));
+    final start = dayTimes[index];
+    final end = index == dayTimes.length - 1
+        ? _timesForOffset(_dayOffset + 1).fajr
+        : dayTimes[index + 1];
+
+    // Kalan süre: yalnızca bugünde anlamlı.
+    final now = DateTime.now();
+    String? durationLabel;
+    String? durationValue;
+    if (_dayOffset == 0) {
+      Duration? d;
+      if (!start.isAfter(now) && end.isAfter(now)) {
+        durationLabel = info.remaining;
+        d = end.difference(now);
+      } else if (start.isAfter(now)) {
+        durationLabel = info.startsIn;
+        d = start.difference(now);
+      }
+      if (d != null) {
+        durationValue = info.fmtDuration(d.inHours, d.inMinutes % 60);
+      }
+    }
+
+    // Kerahat açıklaması (saat aralıklarıyla).
+    String fmt(DateTime t) => DateFormat.Hm(locale).format(t);
+    final kerahatText = switch (index) {
+      1 => info.sunKerahat(
+          fmt(start),
+          fmt(start.add(_sunriseKerahat)),
+          fmt(end.subtract(_istiwaKerahat)),
+          fmt(end),
+        ),
+      3 => info.asrKerahat(fmt(end.subtract(_isfirarKerahat)), fmt(end)),
+      _ => info.noKerahat,
+    };
+
+    final scheme = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (context) {
-        final scheme = Theme.of(context).colorScheme;
-        return StatefulBuilder(
-          builder: (context, setSheetState) => SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Chip(
-                    avatar:
-                        Icon(Icons.access_time, size: 18, color: scheme.primary),
-                    label: Text(
-                      s.verseOfPeriod(s.prayerNames[index]),
-                      style: TextStyle(
-                        color: scheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    backgroundColor:
-                        scheme.primaryContainer.withValues(alpha: 0.5),
-                    side: BorderSide.none,
-                  ),
-                  const SizedBox(height: 12),
-                  VerseCard(verse: verses[cursor % verses.length]),
-                  const SizedBox(height: 8),
-                  TextButton.icon(
-                    icon: const Icon(Icons.refresh),
-                    label: Text(s.anotherVerse),
-                    onPressed: () {
-                      setSheetState(() => cursor++);
-                      _verseCursor[index] = cursor + 1;
-                    },
+                  Icon(_icons[index], color: scheme.primary),
+                  const SizedBox(width: 10),
+                  Text(
+                    s.prayerNames[index],
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
+              const SizedBox(height: 14),
+              _infoRow(info.entersAt, fmt(start), scheme),
+              _infoRow(info.endsAt, fmt(end), scheme),
+              if (durationLabel != null && durationValue != null)
+                _infoRow(durationLabel, durationValue, scheme,
+                    highlight: true),
+              const SizedBox(height: 14),
+              _sectionLabel(info.meaningTitle, scheme),
+              const SizedBox(height: 6),
+              Text(info.meanings[index],
+                  style: const TextStyle(fontSize: 15, height: 1.55)),
+              const SizedBox(height: 14),
+              _sectionLabel(info.kerahatTitle, scheme),
+              const SizedBox(height: 6),
+              Text(kerahatText,
+                  style: const TextStyle(fontSize: 15, height: 1.55)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value, ColorScheme scheme,
+      {bool highlight = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: TextStyle(color: scheme.outline))),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: highlight ? scheme.primary : null,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
-        );
-      },
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text, ColorScheme scheme) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: scheme.primary,
+        fontWeight: FontWeight.bold,
+        fontSize: 13,
+      ),
     );
   }
 
@@ -571,12 +644,13 @@ class _HomeScreenState extends State<HomeScreen> {
       color: isCurrent
           ? scheme.surfaceContainerHighest
           : scheme.surfaceContainerLow,
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            onTap: () => _showVerseModal(index),
+            visualDensity: const VisualDensity(vertical: -2),
+            onTap: () => _showPeriodInfoModal(index),
             leading: Icon(
               _icons[index],
               color: isCurrent

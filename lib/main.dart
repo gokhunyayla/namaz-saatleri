@@ -98,6 +98,8 @@ class _RootShellState extends State<RootShell> {
         ],
       ),
       bottomNavigationBar: NavigationBar(
+        height: 64,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: [
