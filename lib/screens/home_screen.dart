@@ -194,8 +194,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// İçinde bulunduğumuz vakit dilimi (bugün görüntüleniyorsa):
-  /// satır indeksi ve 0..1 arası ilerleme.
-  ({int index, double progress})? get _currentPeriod {
+  /// satır indeksi, 0..1 arası ilerleme ve aralığın sınırları.
+  ({int index, double progress, DateTime start, DateTime end})?
+      get _currentPeriod {
     if (_dayOffset != 0) return null;
     final all = _timeline;
 
@@ -208,10 +209,39 @@ class _HomeScreenState extends State<HomeScreen> {
     final start = all[pos].$2;
     final end = all[pos + 1].$2;
     final total = end.difference(start).inSeconds;
-    if (total <= 0) return (index: all[pos].$1, progress: 1.0);
+    if (total <= 0) {
+      return (index: all[pos].$1, progress: 1.0, start: start, end: end);
+    }
     final progress =
         (_now.difference(start).inSeconds / total).clamp(0.0, 1.0);
-    return (index: all[pos].$1, progress: progress);
+    return (index: all[pos].$1, progress: progress, start: start, end: end);
+  }
+
+  // ---- Kerahat vakitleri (Hanefî / Diyanet İlmihali) ----
+  // 1) Güneş doğduktan sonra ~45 dk (bir mızrak boyu yükselene kadar)
+  // 2) İstivâ: öğle vaktinden önceki ~10 dk (güneş tam tepedeyken)
+  // 3) İsfirâr: akşam vaktinden önceki ~45 dk (güneşin sararması)
+  // Bu pencereler yalnızca Güneş (1) ve İkindi (3) dilimlerinin içindedir;
+  // İmsak, Öğle, Akşam ve Yatsı dilimlerinde kerahat yoktur.
+  static const _sunriseKerahat = Duration(minutes: 45);
+  static const _istiwaKerahat = Duration(minutes: 10);
+  static const _isfirarKerahat = Duration(minutes: 45);
+
+  /// Dilim içindeki kerahat bölgeleri, 0..1 kesir aralıkları olarak.
+  static List<(double, double)> _kerahatZones(
+      int index, DateTime start, DateTime end) {
+    final total = end.difference(start).inSeconds;
+    if (total <= 0) return const [];
+    double f(DateTime t) =>
+        (t.difference(start).inSeconds / total).clamp(0.0, 1.0).toDouble();
+    return switch (index) {
+      1 => [
+          (0.0, f(start.add(_sunriseKerahat))),
+          (f(end.subtract(_istiwaKerahat)), 1.0),
+        ],
+      3 => [(f(end.subtract(_isfirarKerahat)), 1.0)],
+      _ => const [],
+    };
   }
 
   String _countdown(DateTime to) {
@@ -509,7 +539,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _timeRow(
     int index,
     DateTime time,
-    ({int index, double progress})? current,
+    ({int index, double progress, DateTime start, DateTime end})? current,
   ) {
     final s = AppSettings.instance.strings;
     final scheme = Theme.of(context).colorScheme;
@@ -517,8 +547,22 @@ class _HomeScreenState extends State<HomeScreen> {
     final isCurrent = current != null && current.index == index;
     final passed = time.isBefore(_now) && !isCurrent;
 
-    // Koyu temada daha açık, açık temada daha koyu bir kırmızı.
-    final progressColor = isDark ? Colors.red.shade300 : Colors.red.shade600;
+    // Bar renkleri: kerahate kadar yeşil→turuncu, kerahatte kırmızı.
+    final green = isDark ? Colors.green.shade400 : Colors.green.shade600;
+    final orange = isDark ? Colors.orange.shade400 : Colors.orange.shade700;
+    final red = isDark ? Colors.red.shade300 : Colors.red.shade600;
+
+    // Şu anki ilerlemeye karşılık gelen renk (ikon ve yüzde etiketi için).
+    final zones = isCurrent
+        ? _kerahatZones(index, current.start, current.end)
+        : const <(double, double)>[];
+    final inKerahat = isCurrent &&
+        zones.any((z) => current.progress >= z.$1 && current.progress <= z.$2);
+    final progressColor = !isCurrent
+        ? red
+        : inKerahat
+            ? red
+            : Color.lerp(green, orange, current.progress)!;
 
     return Card(
       // Geçerli vakit, üzerine gelinmiş bir buton gibi "yükselir".
@@ -562,22 +606,14 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Row(
                 children: [
-                  // Vaktin başından sonuna ilerleme: kendi çizdiğimiz bar,
-                  // her Flutter sürümünde/cihazda aynı görünür.
                   Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Container(
-                        height: 8,
-                        color: progressColor.withValues(alpha: 0.2),
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: FractionallySizedBox(
-                            widthFactor: current.progress.clamp(0.0, 1.0),
-                            child: Container(color: progressColor),
-                          ),
-                        ),
-                      ),
+                    child: _PeriodBar(
+                      progress: current.progress.clamp(0.0, 1.0),
+                      kerahatZones: zones,
+                      green: green,
+                      orange: orange,
+                      red: red,
+                      markerColor: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -595,6 +631,135 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Vakit ilerleme çubuğu: dolu kısım yeşilden turuncuya akar (gradyan),
+/// kerahat bölgeleri kırmızıdır; kerahat sınırları ince çizgiyle işaretlenir.
+class _PeriodBar extends StatelessWidget {
+  final double progress;
+
+  /// 0..1 kesirleriyle kırmızı (kerahat) bölgeler.
+  final List<(double, double)> kerahatZones;
+  final Color green;
+  final Color orange;
+  final Color red;
+  final Color markerColor;
+
+  const _PeriodBar({
+    required this.progress,
+    required this.kerahatZones,
+    required this.green,
+    required this.orange,
+    required this.red,
+    required this.markerColor,
+  });
+
+  /// Tam genişlik için renk/durak listesi: kerahat dışı yeşil→turuncu,
+  /// kerahat içi kırmızı.
+  (List<Color>, List<double>) _gradient() {
+    if (kerahatZones.isEmpty) {
+      return ([green, orange], [0.0, 1.0]);
+    }
+    final colors = <Color>[];
+    final stops = <double>[];
+    void add(Color c, double at) {
+      colors.add(c);
+      stops.add(at);
+    }
+
+    var cursor = 0.0;
+    for (final (zStart, zEnd) in kerahatZones) {
+      if (zStart > cursor) {
+        // Kerahat öncesi: yeşilden turuncuya.
+        add(green, cursor);
+        add(orange, zStart);
+      }
+      add(red, zStart);
+      add(red, zEnd);
+      cursor = zEnd;
+    }
+    if (cursor < 1.0) {
+      add(green, cursor);
+      add(orange, 1.0);
+    }
+    return (colors, stops);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final (colors, stops) = _gradient();
+    return SizedBox(
+      height: 14,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final w = constraints.maxWidth;
+          return Stack(
+            children: [
+              // Zemin: tam gradyanın soluk hâli.
+              Positioned.fill(
+                top: 3,
+                bottom: 3,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Opacity(
+                    opacity: 0.22,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: AlignmentDirectional.centerStart,
+                          end: AlignmentDirectional.centerEnd,
+                          colors: colors,
+                          stops: stops,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Dolu kısım: geçen süre kadar gradyan.
+              PositionedDirectional(
+                top: 3,
+                bottom: 3,
+                start: 0,
+                width: w * progress,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: AlignmentDirectional.centerStart,
+                        end: AlignmentDirectional.centerEnd,
+                        // Dolu kısım, tam genişlik gradyanının soldan kesiti
+                        // gibi görünsün diye duraklar ilerlemeye ölçeklenir.
+                        colors: colors,
+                        stops: [
+                          for (final st in stops)
+                            progress <= 0 ? 0.0 : (st / progress).clamp(0.0, 1.0)
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Kerahat sınır çizgileri (0 ve 1 hariç).
+              for (final (zStart, zEnd) in kerahatZones)
+                for (final frac in [zStart, zEnd])
+                  if (frac > 0.001 && frac < 0.999)
+                    PositionedDirectional(
+                      start: (w * frac) - 1,
+                      top: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: 2,
+                        color: markerColor.withValues(alpha: 0.7),
+                      ),
+                    ),
+            ],
+          );
+        },
       ),
     );
   }
