@@ -1,0 +1,20 @@
+Vakte — Prayer Times, Qibla Compass & Prayer Guide
+
+Accurate prayer times for your location, adhan notifications when prayer time begins, a precise qibla compass, and a step-by-step guide to performing the prayer. Everything runs on your device: no account, no server, no data collection.
+
+NO ADS — EVER.
+
+FEATURES
+• Location-based times: six times from Fajr to Isha, calculated on-device (Turkish Diyanet method); works offline
+• Live countdown to the next prayer; a colored progress bar for the current period (makruh times marked)
+• Adhan notifications: hear the adhan when prayer time begins, or choose the standard notification sound; optional early reminder
+• Qibla compass: true-north accurate direction with haptic confirmation when aligned
+• This Hour: a relevant Quranic verse for each prayer period — Arabic, transliteration and meaning
+• How to Pray: a rak'ah-by-rak'ah guide for every prayer
+• Prayer surahs and supplications with Arabic, transliteration and meaning
+• The 32 Obligations, the 99 Names of Allah, and the life of Prophet Muhammad (pbuh)
+• Browse any date from the calendar
+• Turkish, Arabic and English interface; light/dark theme
+
+PRIVACY
+Your data stays on your device. Location is used only on-device to calculate times and qibla; nothing is sent to any server, and no data is collected.
