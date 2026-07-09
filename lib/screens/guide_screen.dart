@@ -404,6 +404,11 @@ class PrayerTextDetailScreen extends StatelessWidget {
       AppLang.ar => null,
     };
 
+    // Uzun sureler: Mushaf sayfa düzeninde, sayfa çevirerek okunur.
+    if (text.pages != null) {
+      return _PagedSurahView(text: text, g: g, lang: lang);
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(name)),
       body: ListView(
@@ -476,6 +481,157 @@ class PrayerTextDetailScreen extends StatelessWidget {
         ),
         Expanded(child: Divider(color: scheme.outlineVariant)),
       ],
+    );
+  }
+}
+
+/// Mushaf düzeninde sayfa sayfa sure görünümü (Yâsîn, Mülk...).
+class _PagedSurahView extends StatefulWidget {
+  final PrayerText text;
+  final GuideL10n g;
+  final AppLang lang;
+
+  const _PagedSurahView(
+      {required this.text, required this.g, required this.lang});
+
+  @override
+  State<_PagedSurahView> createState() => _PagedSurahViewState();
+}
+
+class _PagedSurahViewState extends State<_PagedSurahView> {
+  final _controller = PageController();
+  int _index = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final pages = widget.text.pages!;
+    final name = switch (widget.lang) {
+      AppLang.tr => widget.text.nameTr,
+      AppLang.ar => widget.text.nameAr,
+      AppLang.en => widget.text.nameEn,
+    };
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(name),
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(end: 16),
+              child: Text(
+                '${widget.g.pageLabel} ${pages[_index].page} • ${_index + 1}/${pages.length}',
+                style: TextStyle(
+                  color: scheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Directionality(
+              // Mushaf gibi sağdan sola sayfa çevrilir.
+              textDirection: ui.TextDirection.rtl,
+              child: PageView.builder(
+                controller: _controller,
+                itemCount: pages.length,
+                onPageChanged: (i) => setState(() => _index = i),
+                itemBuilder: (context, i) {
+                  final page = pages[i];
+                  final meal = switch (widget.lang) {
+                    AppLang.tr => page.mealTr,
+                    AppLang.en => page.mealEn,
+                    AppLang.ar => null,
+                  };
+                  return Directionality(
+                    textDirection: Directionality.of(context),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          Card(
+                            elevation: 0,
+                            color: scheme.surfaceContainerLow,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: scheme.outlineVariant),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Directionality(
+                                textDirection: ui.TextDirection.rtl,
+                                child: Text(
+                                  page.arabic,
+                                  textAlign: TextAlign.justify,
+                                  style: const TextStyle(
+                                    fontFamily: 'Amiri',
+                                    fontSize: 24,
+                                    height: 2.1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (meal != null) ...[
+                            const SizedBox(height: 14),
+                            Directionality(
+                              textDirection: ui.TextDirection.ltr,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                          child: Divider(
+                                              color: scheme.outlineVariant)),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12),
+                                        child: Text(
+                                          widget.g.meaningLabel,
+                                          style: TextStyle(
+                                            color: scheme.primary,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                          child: Divider(
+                                              color: scheme.outlineVariant)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    meal,
+                                    style: const TextStyle(
+                                        fontSize: 15, height: 1.6),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

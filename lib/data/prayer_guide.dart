@@ -75,6 +75,7 @@ class GuideL10n {
   final String surasGroup;
   final String guideNote;
   final String translitLabel;
+  final String pageLabel;
   final String meaningLabel;
 
   final String partSunnah;
@@ -122,6 +123,7 @@ class GuideL10n {
     required this.surasGroup,
     required this.guideNote,
     required this.translitLabel,
+    required this.pageLabel,
     required this.meaningLabel,
     required this.partSunnah,
     required this.partSunnahFirst,
@@ -169,7 +171,7 @@ String _enRakat(int n) => 'Rak\'ah $n';
 String _enCount(int n) => '$n Rak\'ahs';
 
 final _tr = GuideL10n(
-  tabGuide: 'Namaz',
+  tabGuide: 'İbadet',
   guideTitle: 'Namaz Nasıl Kılınır',
   prayersSection: 'Namazlar',
   textsSection: 'Sureler ve Dualar',
@@ -181,6 +183,7 @@ final _tr = GuideL10n(
   guideNote:
       'Anlatım, Hanefî mezhebine (Diyanet İlmihali) göredir. Okunan sure ve duaların metinleri için "Sureler ve Dualar" bölümüne bakabilirsiniz.',
   translitLabel: 'Okunuşu',
+  pageLabel: 'Sayfa',
   meaningLabel: 'Meali',
   partSunnah: 'Sünnet',
   partSunnahFirst: 'İlk Sünnet',
@@ -212,7 +215,7 @@ final _tr = GuideL10n(
 );
 
 final _ar = GuideL10n(
-  tabGuide: 'الصلاة',
+  tabGuide: 'العبادة',
   guideTitle: 'كيفية الصلاة',
   prayersSection: 'الصلوات',
   textsSection: 'السور والأدعية',
@@ -223,6 +226,7 @@ final _ar = GuideL10n(
   surasGroup: 'سور الصلاة',
   guideNote: 'الشرح وفق المذهب الحنفي. تجد نصوص السور والأدعية في قسم "السور والأدعية".',
   translitLabel: 'النطق',
+  pageLabel: 'صفحة',
   meaningLabel: 'المعنى',
   partSunnah: 'السنة',
   partSunnahFirst: 'السنة القبلية',
@@ -254,7 +258,7 @@ final _ar = GuideL10n(
 );
 
 final _en = GuideL10n(
-  tabGuide: 'Prayer',
+  tabGuide: 'Worship',
   guideTitle: 'How to Pray',
   prayersSection: 'Prayers',
   textsSection: 'Surahs & Supplications',
@@ -266,6 +270,7 @@ final _en = GuideL10n(
   guideNote:
       'The description follows the Hanafi school (Turkish Diyanet). See the "Surahs & Supplications" section for the full texts.',
   translitLabel: 'Transliteration',
+  pageLabel: 'Page',
   meaningLabel: 'Meaning',
   partSunnah: 'Sunnah',
   partSunnahFirst: 'First Sunnah',

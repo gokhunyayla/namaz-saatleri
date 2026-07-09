@@ -3,6 +3,17 @@
 /// ÖNEMLİ: Bu metinler sabit, elle yazılmış ve doğrulanmış bir listedir;
 /// çalışma anında üretilmez. Arapça metinler tam ve harekelidir.
 /// Okunuşlar Türkçe (Diyanet usulü) ve Latin (İngilizce) olarak verilir.
+/// Mushaf sayfası: uzun sureler sayfa sayfa gösterilir.
+class SurahPage {
+  /// Mushaf sayfa numarası.
+  final int page;
+  final String arabic;
+  final String mealTr;
+  final String mealEn;
+
+  const SurahPage(this.page, this.arabic, this.mealTr, this.mealEn);
+}
+
 class PrayerText {
   final String nameTr;
   final String nameAr;
@@ -17,6 +28,9 @@ class PrayerText {
   final String mealTr;
   final String mealEn;
 
+  /// Uzun surelerde Medine Mushafı sayfa düzeni (varsa sayfalı gösterilir).
+  final List<SurahPage>? pages;
+
   const PrayerText({
     required this.nameTr,
     required this.nameAr,
@@ -27,6 +41,7 @@ class PrayerText {
     this.translitEn,
     required this.mealTr,
     required this.mealEn,
+    this.pages,
   });
 }
 
