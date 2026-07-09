@@ -1,6 +1,38 @@
-/// Vakit namazları dışındaki namazlar: Cuma, Bayram, Cenaze, Teravih,
-/// Teheccüd, Evvâbin, Kuşluk (Duhâ), İstihâre ve Tesbih namazı.
-/// İçerik sabittir; Hanefî mezhebi / Diyanet İlmihali esas alınmıştır.
+import 'prayer_guide.dart';
+
+/// Vakit namazlari disindaki namazlar. Her namaz bolumlerden (OtherSection)
+/// olusur: bolum ya rekat motoruyla (part) vakit namazlari gibi rekat rekat
+/// anlatilir, ya ozel adim listesiyle (Bayram tekbirleri, Cenaze, Tesbih),
+/// ya da bilgi kartidir (Hutbe gibi).
+/// Icerik sabittir; Hanefi mezhebi / Diyanet Ilmihali esas alinmistir.
+class OtherSection {
+  final String labelTr;
+  final String labelAr;
+  final String labelEn;
+
+  /// Rekat motoru ile anlatim (vakit namazlariyla ayni).
+  final PrayerPart? part;
+
+  /// Ozel adimlar (motorun karsilayamadigi kilinislar).
+  final List<String>? stepsTr;
+  final List<String>? stepsAr;
+  final List<String>? stepsEn;
+
+  /// Bolum hakkinda bilgi notu.
+  final String? infoTr;
+  final String? infoAr;
+  final String? infoEn;
+
+  const OtherSection(this.labelTr, this.labelAr, this.labelEn,
+      {this.part,
+      this.stepsTr,
+      this.stepsAr,
+      this.stepsEn,
+      this.infoTr,
+      this.infoAr,
+      this.infoEn});
+}
+
 class OtherPrayer {
   final String nameTr;
   final String nameAr;
@@ -11,229 +43,260 @@ class OtherPrayer {
   final String introTr;
   final String introAr;
   final String introEn;
-  final List<String> stepsTr;
-  final List<String> stepsAr;
-  final List<String> stepsEn;
+
+  /// Listede gosterilen rekat sayisi (orn. '16', '2-8').
+  final String countLabel;
+  final List<OtherSection> sections;
 
   const OtherPrayer(
       this.nameTr, this.nameAr, this.nameEn,
       this.subtitleTr, this.subtitleAr, this.subtitleEn,
       this.introTr, this.introAr, this.introEn,
-      this.stepsTr, this.stepsAr, this.stepsEn);
+      this.countLabel, this.sections);
 }
 
 const List<OtherPrayer> otherPrayers = [
   OtherPrayer(
     'Cuma Namazı', 'صلاة الجمعة', 'Friday Prayer',
-    'Cuma günü öğle vaktinde, cemaatle', 'يوم الجمعة جماعة', 'Friday noon, in congregation',
-    'Cuma namazı, cuma günü öğle vakti cemaatle kılınır ve o günün öğle namazının yerine geçer; erkeklere farzdır. Hutbe, cuma namazının şartıdır ve farzdan önce okunur.',
-    'تُصلى الجمعة جماعةً وقت الظهر يوم الجمعة وهي فرض على الرجال، وتقوم مقام صلاة الظهر. الخطبة شرط لها وتكون قبل الفرض.',
-    'The Friday prayer is performed in congregation at noon on Friday and replaces that day\'s Dhuhr; it is obligatory for men. The sermon (khutbah) is an essential condition and precedes the fard.',
+    'Cuma günü öğle vaktinde, cemaatle — 16 rekat', 'يوم الجمعة جماعة — ١٦ ركعة', 'Friday noon, in congregation — 16 rak\'ahs',
+    'Cuma namazı, cuma günü öğle vakti cemaatle kılınır ve o günün öğle namazının yerine geçer; erkeklere farzdır. Hutbe, cuma namazının şartıdır. Türkiye\'deki yaygın uygulamada (Diyanet İlmihali) toplam 16 rekattır: 4 ilk sünnet + 2 farz + 4 son sünnet + 4 zuhr-i âhir + 2 vaktin sünneti. Namazdan sonra tesbihat yapılır ve dua edilir.',
+    'تُصلى الجمعة جماعة وقت الظهر وهي فرض على الرجال، والخطبة شرط لها. في التطبيق الشائع بتركيا مجموعها ١٦ ركعة: ٤ سنة قبلية + ٢ فرض + ٤ سنة بعدية + ٤ ظهر آخر + ٢ سنة الوقت، ثم التسبيحات والدعاء.',
+    'The Friday prayer is held in congregation at noon and replaces Dhuhr; it is obligatory for men, and the khutbah is its condition. In common Turkish practice (Diyanet) it totals 16 rak\'ahs: 4 first sunnah + 2 fard + 4 final sunnah + 4 zuhr akhir + 2 sunnah of the time, followed by tasbihat and supplication.',
+    '16',
     [
-      'Camiye gidilir; ilk sünnet olarak 4 rekat kılınır (öğle namazının ilk sünneti gibi)',
-      'Hutbe dinlenir (hutbe okunurken konuşulmaz)',
-      'İmamla birlikte 2 rekat farz kılınır; imam Fâtiha ve sureyi sesli okur',
-      'Son sünnet olarak 4 rekat kılınır',
-    ],
-    [
-      'تُصلى أربع ركعات سنة قبلية',
-      'يُستمع إلى الخطبة بصمت',
-      'تُصلى ركعتا الفرض خلف الإمام ويجهر الإمام بالقراءة',
-      'تُصلى أربع ركعات سنة بعدية',
-    ],
-    [
-      'Pray 4 rak\'ahs of the first sunnah (like the Dhuhr sunnah)',
-      'Listen to the khutbah silently',
-      'Pray the 2 fard rak\'ahs behind the imam, who recites aloud',
-      'Pray 4 rak\'ahs of the final sunnah',
+      OtherSection('İlk Sünnet • 4 Rekat', 'السنة القبلية • ٤ ركعات', 'First Sunnah • 4 Rak\'ahs',
+        part: PrayerPart(PartKind.sunnahFirst, 4),
+      ),
+      OtherSection('Hutbe', 'الخطبة', 'Khutbah',
+        infoTr: 'İmam minbere çıkar ve hutbe okur. Hutbeyi sessizce dinlemek gerekir; hutbe esnasında konuşulmaz, namaz kılınmaz.',
+        infoAr: 'يصعد الإمام المنبر ويخطب؛ يجب الإنصات للخطبة ولا يُتكلم أثناءها.',
+        infoEn: 'The imam delivers the sermon from the minbar. It must be listened to silently; no talking or praying during it.',
+      ),
+      OtherSection('Farz • 2 Rekat (Cemaatle)', 'الفرض • ركعتان (جماعة)', 'Fard • 2 Rak\'ahs (Congregation)',
+        part: PrayerPart(PartKind.fard, 2),
+        infoTr: 'İmama uyularak kılınır; imam Fâtiha ve sureyi sesli okur, cemaat dinler.',
+        infoAr: 'تُصلى خلف الإمام ويجهر بالقراءة وينصت المأموم.',
+        infoEn: 'Prayed behind the imam, who recites aloud while the congregation listens.',
+      ),
+      OtherSection('Son Sünnet • 4 Rekat', 'السنة البعدية • ٤ ركعات', 'Final Sunnah • 4 Rak\'ahs',
+        part: PrayerPart(PartKind.sunnahFirst, 4),
+      ),
+      OtherSection('Zuhr-i Âhir • 4 Rekat', 'ظهر آخر • ٤ ركعات', 'Zuhr Akhir • 4 Rak\'ahs',
+        part: PrayerPart(PartKind.sunnahFirst, 4),
+        infoTr: '"Vaktine yetişip henüz kılamadığım son öğle namazı" niyetiyle ihtiyaten kılınır.',
+        infoAr: 'تُصلى احتياطًا بنية آخر ظهر أدركتُ وقته ولم أصله بعد.',
+        infoEn: 'Prayed as a precaution with the intention of the last Dhuhr whose time was reached but not yet prayed.',
+      ),
+      OtherSection('Vaktin Sünneti • 2 Rekat', 'سنة الوقت • ركعتان', 'Sunnah of the Time • 2 Rak\'ahs',
+        part: PrayerPart(PartKind.sunnahLast, 2),
+        infoTr: 'Namazın ardından tesbihat yapılır (33 Sübhânallah, 33 Elhamdülillah, 33 Allâhü Ekber) ve dua edilir.',
+        infoAr: 'بعد الصلاة تُقال التسبيحات (٣٣ سبحان الله، ٣٣ الحمد لله، ٣٣ الله أكبر) ثم الدعاء.',
+        infoEn: 'Afterwards, tasbihat is recited (33x Subhanallah, Alhamdulillah, Allahu Akbar) followed by supplication.',
+      ),
     ]),
   OtherPrayer(
     'Bayram Namazı', 'صلاة العيد', 'Eid Prayer',
-    'Ramazan ve Kurban bayramı sabahı', 'صباح العيدين', 'Morning of the two Eids',
-    'Bayram namazı, bayram sabahı güneş doğup kerahat vakti çıktıktan sonra cemaatle kılınan 2 rekatlık vacip bir namazdır. Diğer namazlardan farkı, her rekatta fazladan üçer \'zevaid\' tekbiri bulunmasıdır. Hutbe, bayramda namazdan sonra okunur.',
-    'صلاة العيد ركعتان تُصليان جماعة صباح العيد بعد ارتفاع الشمس، وفيها تكبيرات زوائد: ثلاث في كل ركعة. والخطبة في العيد بعد الصلاة.',
-    'The Eid prayer is 2 rak\'ahs performed in congregation on Eid morning after sunrise. Its distinction is the extra (zawaid) takbirs: three in each rak\'ah. The sermon follows the prayer.',
+    'Bayram sabahı, cemaatle — zevaid tekbirli', 'صباح العيد جماعة — بتكبيرات زوائد', 'Eid morning, congregation — extra takbirs',
+    'Bayram namazı, bayram sabahı güneş doğup kerahat vakti çıktıktan sonra cemaatle kılınan 2 rekatlık vacip namazdır. Farkı, her rekattaki üçer zevaid tekbiridir. Hutbe bayramda namazdan sonradır.',
+    'صلاة العيد ركعتان واجبة تُصليان جماعة بعد ارتفاع الشمس، وتمتاز بثلاث تكبيرات زوائد في كل ركعة، وخطبتها بعد الصلاة.',
+    'The Eid prayer is 2 obligatory rak\'ahs in congregation after sunrise, distinguished by three extra takbirs in each rak\'ah; the sermon follows the prayer.',
+    '2',
     [
-      'Niyet edilir, iftitah tekbiri alınır, Sübhâneke okunur',
-      '3 zevaid tekbiri alınır: her tekbirde eller kulaklara kaldırılıp yanlara salınır; üçüncüsünden sonra eller bağlanır',
-      'İmam Fâtiha ve sureyi okur, rükû ve secdeler yapılır',
-      '2. rekatta imam Fâtiha ve sureyi okur; rükûdan ÖNCE yine 3 zevaid tekbiri alınır, dördüncü tekbirle rükûya varılır',
-      'Oturuş ve selamdan sonra hutbe dinlenir',
-    ],
-    [
-      'النية وتكبيرة الإحرام ثم دعاء الاستفتاح',
-      'ثلاث تكبيرات زوائد تُرفع فيها اليدان ثم تُرسلان، وبعد الثالثة تُعقدان',
-      'يقرأ الإمام الفاتحة وسورة ثم الركوع والسجود',
-      'في الثانية يقرأ الإمام ثم ثلاث تكبيرات قبل الركوع ويُركع بالرابعة',
-      'بعد السلام تُستمع الخطبة',
-    ],
-    [
-      'Make intention, opening takbir, recite Subhanaka',
-      'Three extra takbirs: raise hands at each and let them fall; fold hands after the third',
-      'The imam recites Fatiha and a surah; bow and prostrate',
-      'In the 2nd rak\'ah, after recitation, three extra takbirs BEFORE bowing; bow on the fourth',
-      'After salam, listen to the Eid sermon',
+      OtherSection('1. Rekat', 'الركعة الأولى', 'Rak\'ah 1',
+        stepsTr: [
+          'Niyet edilir (bayram namazına, imama uyarak) ve iftitah tekbiri alınır; Sübhâneke okunur',
+          '1. zevaid tekbiri: eller kulak hizasına kaldırılır ve yanlara salınır',
+          '2. zevaid tekbiri: eller yine kaldırılır ve salınır',
+          '3. zevaid tekbiri: eller kaldırılır ve bu kez bağlanır',
+          'İmam Fâtiha ve sureyi sesli okur; cemaat dinler',
+          'Rükû ve secdeler yapılır, 2. rekata kalkılır',
+        ],
+        stepsAr: [
+          'النية وتكبيرة الإحرام ثم دعاء الاستفتاح',
+          'التكبيرة الزائدة الأولى: تُرفع اليدان ثم تُرسلان',
+          'الثانية: تُرفعان ثم تُرسلان',
+          'الثالثة: تُرفعان ثم تُعقدان',
+          'يجهر الإمام بالفاتحة وسورة',
+          'الركوع والسجود ثم القيام للثانية',
+        ],
+        stepsEn: [
+          'Make intention (Eid prayer, following the imam); opening takbir and Subhanaka',
+          '1st extra takbir: raise hands, then let them fall',
+          '2nd extra takbir: raise and release again',
+          '3rd extra takbir: raise hands and fold them',
+          'The imam recites Fatiha and a surah aloud',
+          'Bow, prostrate, and rise for the 2nd rak\'ah',
+        ],
+      ),
+      OtherSection('2. Rekat', 'الركعة الثانية', 'Rak\'ah 2',
+        stepsTr: [
+          'İmam Fâtiha ve sureyi okur',
+          '3 zevaid tekbiri alınır: her defasında eller kaldırılıp salınır',
+          '4. tekbirle birlikte rükûya varılır',
+          'Secdeler yapılır; oturuşta Ettehiyyâtü, Salli-Bârik ve dualar okunur',
+          'Selam verilir; bayram hutbesi namazdan sonra dinlenir',
+        ],
+        stepsAr: [
+          'يقرأ الإمام الفاتحة وسورة',
+          'ثلاث تكبيرات زوائد تُرفع فيها اليدان ثم تُرسلان',
+          'يُركع مع التكبيرة الرابعة',
+          'السجود ثم الجلوس للتشهد والصلاة الإبراهيمية',
+          'التسليم؛ وخطبة العيد بعد الصلاة',
+        ],
+        stepsEn: [
+          'The imam recites Fatiha and a surah',
+          '3 extra takbirs, raising and releasing the hands each time',
+          'Bow together with the 4th takbir',
+          'Prostrate; in the sitting recite At-Tahiyyat, Salli-Barik and the duas',
+          'Salam; the Eid sermon follows the prayer',
+        ],
+      ),
     ]),
   OtherPrayer(
     'Cenaze Namazı', 'صلاة الجنازة', 'Funeral Prayer',
-    'Ayakta, rükûsuz ve secdesiz', 'قيامًا بلا ركوع ولا سجود', 'Standing, no bowing or prostration',
-    'Cenaze namazı farz-ı kifâyedir: Müslümanlardan bir kısmı kılınca diğerlerinden düşer. Rükûsu, secdesi ve oturuşu yoktur; ayakta 4 tekbirle kılınır. Cenaze imamın önüne konur, cemaat saf tutar.',
-    'صلاة الجنازة فرض كفاية، وهي قيام وأربع تكبيرات بلا ركوع ولا سجود. يوضع الميت أمام الإمام ويصطف الناس خلفه.',
-    'The funeral prayer is a communal obligation (fard kifayah). It is performed standing with four takbirs - no bowing, prostration, or sitting. The deceased is placed before the imam.',
+    'Ayakta, 4 tekbirle — rükûsuz ve secdesiz', 'قيامًا بأربع تكبيرات — بلا ركوع ولا سجود', 'Standing, 4 takbirs — no bowing or prostration',
+    'Cenaze namazı farz-ı kifâyedir: bir kısım Müslüman kılınca diğerlerinden düşer. Rükûsu, secdesi ve oturuşu yoktur; ayakta 4 tekbirle kılınır. Cenaze imamın önüne konur, cemaat saf tutar.',
+    'صلاة الجنازة فرض كفاية، قيام بأربع تكبيرات بلا ركوع ولا سجود؛ يوضع الميت أمام الإمام ويصطف الناس خلفه.',
+    'The funeral prayer is a communal obligation performed standing with four takbirs - no bowing or prostration. The deceased is placed before the imam.',
+    '4',
     [
-      'Niyet edilir (kimin için kılındığı belirtilerek), 1. tekbir alınır ve Sübhâneke \'ve celle senâük\' ilavesiyle okunur',
-      '2. tekbir: Allâhümme Salli ve Allâhümme Bârik okunur',
-      '3. tekbir: cenaze duası okunur (bilinmiyorsa Rabbenâ duaları veya Fâtiha dua niyetiyle okunabilir)',
-      '4. tekbir alınır, ardından önce sağa sonra sola selam verilir',
-    ],
-    [
-      'النية ثم التكبيرة الأولى ويُقرأ الاستفتاح مع «وجل ثناؤك»',
-      'التكبيرة الثانية: الصلاة الإبراهيمية',
-      'التكبيرة الثالثة: الدعاء للميت',
-      'التكبيرة الرابعة ثم التسليم يمينًا ويسارًا',
-    ],
-    [
-      'Make intention, first takbir, recite Subhanaka adding \'wa jalla thana\'uk\'',
-      'Second takbir: recite Allahumma Salli and Barik',
-      'Third takbir: supplicate for the deceased',
-      'Fourth takbir, then salam to the right and left',
+      OtherSection('Kılınışı • 4 Tekbir', 'كيفيتها • ٤ تكبيرات', 'How It Is Prayed • 4 Takbirs',
+        stepsTr: [
+          'Niyet edilir (kimin için kılındığı belirtilerek) ve 1. tekbir alınır; Sübhâneke "ve celle senâük" ilavesiyle okunur',
+          '2. tekbir: Allâhümme Salli ve Allâhümme Bârik okunur',
+          '3. tekbir: cenaze duası okunur (bilinmiyorsa Rabbenâ duaları veya dua niyetiyle Fâtiha okunabilir)',
+          '4. tekbir alınır; önce sağa, sonra sola selam verilir',
+        ],
+        stepsAr: [
+          'النية ثم التكبيرة الأولى ويُقرأ الاستفتاح مع «وجل ثناؤك»',
+          'الثانية: الصلاة الإبراهيمية',
+          'الثالثة: الدعاء للميت',
+          'الرابعة ثم التسليم يمينًا ويسارًا',
+        ],
+        stepsEn: [
+          'Make intention (specifying for whom); 1st takbir, recite Subhanaka adding \'wa jalla thana\'uk\'',
+          '2nd takbir: Allahumma Salli and Barik',
+          '3rd takbir: the funeral supplication',
+          '4th takbir; salam right then left',
+        ],
+      ),
     ]),
   OtherPrayer(
     'Teravih Namazı', 'صلاة التراويح', 'Tarawih Prayer',
-    'Ramazan gecelerine mahsus, 20 rekat', 'في ليالي رمضان، ٢٠ ركعة', 'Ramadan nights, 20 rak\'ahs',
-    'Teravih, Ramazan ayına mahsus müekked bir sünnettir; yatsı namazından sonra, vitirden önce kılınır. Hanefî mezhebinde 20 rekattır; ikişer veya dörder rekat hâlinde kılınabilir. Cemaatle de yalnız da kılınabilir.',
-    'التراويح سنة مؤكدة في رمضان، تُصلى بعد العشاء وقبل الوتر، وهي عشرون ركعة تُصلى مثنى مثنى أو أربعًا أربعًا.',
-    'Tarawih is an emphasized sunnah specific to Ramadan, prayed after Isha and before Witr. In the Hanafi school it is 20 rak\'ahs, prayed in sets of two or four.',
+    'Ramazan gecelerine mahsus — 20 rekat', 'في ليالي رمضان — ٢٠ ركعة', 'Ramadan nights — 20 rak\'ahs',
+    'Teravih, Ramazan ayına mahsus müekked sünnettir; yatsının farzı ve son sünnetinden sonra, vitirden önce kılınır. Hanefî mezhebinde 20 rekattır; ikişer (veya dörder) rekat hâlinde kılınır, aralarda salavat ve tesbihlerle dinlenilir. Ramazan\'da vitir de cemaatle kılınabilir.',
+    'التراويح سنة مؤكدة في رمضان بعد العشاء وقبل الوتر، وهي عشرون ركعة تُصلى مثنى مثنى أو أربعًا أربعًا مع استراحات بينها.',
+    'Tarawih is an emphasized sunnah of Ramadan, after Isha and before Witr - 20 rak\'ahs in sets of two (or four), with brief rests between sets.',
+    '20',
     [
-      'Yatsının farzı ve son sünneti kılındıktan sonra teravihe niyet edilir',
-      'İkişer (veya dörder) rekat hâlinde toplam 20 rekat kılınır; her rekatta Fâtiha ve zammı sure okunur',
-      'Her iki (veya dört) rekatın sonunda selam verilir; aralarda salavat ve tesbihlerle dinlenilir',
-      'Teravihten sonra vitir namazı kılınır (Ramazan\'da vitir cemaatle kılınabilir)',
-    ],
-    [
-      'بعد فرض العشاء وسنته تُعقد نية التراويح',
-      'تُصلى عشرون ركعة مثنى مثنى أو أربعًا أربعًا',
-      'يُسلَّم بعد كل ركعتين أو أربع ويُستراح بينها بالصلوات والتسبيح',
-      'بعد التراويح تُصلى صلاة الوتر',
-    ],
-    [
-      'After the fard and sunnah of Isha, make intention for Tarawih',
-      'Pray 20 rak\'ahs in sets of two (or four), each with Fatiha and a surah',
-      'Give salam after each set; brief rest with salawat between sets',
-      'After Tarawih, pray the Witr prayer',
+      OtherSection('2 Rekat • 10 kez tekrarlanır', 'ركعتان • تُكرر ١٠ مرات', '2 Rak\'ahs • repeated 10 times',
+        part: PrayerPart(PartKind.sunnah, 2),
+        infoTr: 'Bu 2 rekatlık düzen 10 kez tekrarlanır (toplam 20 rekat). Dörder rekat hâlinde kılınırsa ilk oturuşta Salli-Bârik de okunur. Teravihten sonra vitir kılınır.',
+        infoAr: 'يُكرر هذا النسق عشر مرات (٢٠ ركعة). وإن صُليت أربعًا تُقرأ الصلاة الإبراهيمية في القعدة الأولى. وبعدها الوتر.',
+        infoEn: 'This 2-rak\'ah set is repeated 10 times (20 total). If prayed in fours, Salli-Barik is added in the first sitting. Witr follows.',
+      ),
     ]),
   OtherPrayer(
     'Teheccüd Namazı', 'صلاة التهجد', 'Tahajjud Prayer',
-    'Gece uykudan kalkıp kılınır', 'قيام الليل بعد النوم', 'Night vigil after sleeping',
-    'Teheccüd, yatsıdan sonra bir miktar uyuyup gece kalkarak kılınan nafile namazdır; 2 ile 8 rekat arasında, ikişer rekat hâlinde kılınması tavsiye edilir. Gecenin son üçte biri en faziletli vaktidir. Kur\'an\'da \'sana mahsus bir nafile\' olarak anılır (İsrâ 79).',
-    'التهجد نافلة تُصلى في الليل بعد نوم، من ركعتين إلى ثمانٍ، مثنى مثنى، وأفضل وقتها الثلث الأخير من الليل.',
-    'Tahajjud is a voluntary prayer performed at night after sleeping - between 2 and 8 rak\'ahs, in pairs. The last third of the night is its most virtuous time (see Quran 17:79).',
+    'Gece uykudan kalkıp kılınır — 2-8 rekat', 'قيام الليل بعد النوم — ٢-٨ ركعات', 'Night vigil after sleeping — 2-8 rak\'ahs',
+    'Teheccüd, yatsıdan sonra bir miktar uyuyup gece kalkarak kılınan nafiledir; ikişer rekat hâlinde 2-8 rekat kılınır. Gecenin son üçte biri en faziletli vaktidir (İsrâ 79).',
+    'التهجد نافلة تُصلى بعد نوم في الليل، مثنى مثنى من ركعتين إلى ثمان، وأفضل وقتها الثلث الأخير من الليل.',
+    'Tahajjud is a voluntary prayer after sleeping at night, in pairs of 2 up to 8 rak\'ahs; the last third of the night is most virtuous (17:79).',
+    '2-8',
     [
-      'Yatsıdan sonra bir süre uyunur; gece kalkılır ve abdest alınır',
-      'Teheccüde niyet edilerek 2 rekat kılınır (normal nafile gibi: Sübhâneke, Fâtiha, zammı sure...)',
-      'Dilenirse ikişer rekat hâlinde 8 rekata kadar devam edilir',
-      'Namazdan sonra dua ve istiğfarla meşgul olunur',
-    ],
-    [
-      'يُنام بعد العشاء ثم يُستيقظ ويُتوضأ',
-      'تُصلى ركعتان بنية التهجد',
-      'يُزاد مثنى مثنى إلى ثماني ركعات لمن شاء',
-      'يُختم بالدعاء والاستغفار',
-    ],
-    [
-      'Sleep after Isha, then wake and make wudu',
-      'Pray 2 rak\'ahs with the intention of Tahajjud (as a regular voluntary prayer)',
-      'Continue in pairs up to 8 rak\'ahs if desired',
-      'Conclude with supplication and istighfar',
+      OtherSection('2 Rekat', 'ركعتان', '2 Rak\'ahs',
+        part: PrayerPart(PartKind.sunnah, 2),
+        infoTr: 'Dilenirse ikişer rekat hâlinde 8 rekata kadar devam edilir; namazdan sonra dua ve istiğfar edilir.',
+        infoAr: 'يُزاد مثنى مثنى إلى ثمانٍ لمن شاء، ويُختم بالدعاء والاستغفار.',
+        infoEn: 'Continue in pairs up to 8 rak\'ahs if desired; conclude with dua and istighfar.',
+      ),
     ]),
   OtherPrayer(
     'Evvâbin Namazı', 'صلاة الأوابين', 'Awwabin Prayer',
-    'Akşam namazından sonra 6 rekat', 'بعد المغرب، ست ركعات', 'After Maghrib, 6 rak\'ahs',
-    'Evvâbin, akşam namazının farzı ve sünnetinden sonra kılınan 6 rekatlık nafile namazdır; ikişer rekat hâlinde kılınır. \'Evvâbin\' çokça tövbe edip Allah\'a yönelenler demektir.',
-    'الأوابين ست ركعات تُصلى بعد فرض المغرب وسنته، مثنى مثنى. والأوابون هم الرجّاعون إلى الله بالتوبة.',
-    'Awwabin is a voluntary prayer of 6 rak\'ahs after the fard and sunnah of Maghrib, prayed in pairs. \'Awwabin\' means those who frequently turn to Allah in repentance.',
+    'Akşam namazından sonra — 6 rekat', 'بعد المغرب — ست ركعات', 'After Maghrib — 6 rak\'ahs',
+    'Evvâbin, akşamın farzı ve sünnetinden sonra ikişer rekat hâlinde kılınan 6 rekatlık nafiledir. Evvâbin, çokça tövbe edip Allah\'a yönelenler demektir.',
+    'الأوابين ست ركعات بعد فرض المغرب وسنته، مثنى مثنى. والأوابون هم الرجّاعون إلى الله بالتوبة.',
+    'Awwabin is 6 voluntary rak\'ahs after the fard and sunnah of Maghrib, prayed in pairs. Awwabin means those who often turn to Allah in repentance.',
+    '6',
     [
-      'Akşamın farzı ve 2 rekat sünneti kılındıktan sonra niyet edilir',
-      'İkişer rekat hâlinde toplam 6 rekat kılınır',
-      'Her rekatta Fâtiha ve zammı sure okunur; her 2 rekatta selam verilir',
-    ],
-    [
-      'بعد فرض المغرب وسنته تُعقد النية',
-      'تُصلى ست ركعات مثنى مثنى',
-      'في كل ركعة الفاتحة وسورة، ويُسلَّم بعد كل ركعتين',
-    ],
-    [
-      'After the fard and 2-rak\'ah sunnah of Maghrib, make intention',
-      'Pray 6 rak\'ahs in pairs',
-      'Each rak\'ah has Fatiha and a surah; salam after every two',
+      OtherSection('2 Rekat • 3 kez tekrarlanır', 'ركعتان • تُكرر ٣ مرات', '2 Rak\'ahs • repeated 3 times',
+        part: PrayerPart(PartKind.sunnah, 2),
+        infoTr: 'Bu 2 rekatlık düzen 3 kez tekrarlanır (toplam 6 rekat); her ikide selam verilir.',
+        infoAr: 'يُكرر هذا النسق ثلاث مرات (٦ ركعات) ويُسلَّم بعد كل ركعتين.',
+        infoEn: 'This set is repeated 3 times (6 total), with salam after each pair.',
+      ),
     ]),
   OtherPrayer(
     'Kuşluk (Duhâ) Namazı', 'صلاة الضحى', 'Duha (Forenoon) Prayer',
-    'Kuşluk vaktinde 2-8 rekat', 'في الضحى، ٢-٨ ركعات', 'Mid-morning, 2-8 rak\'ahs',
-    'Kuşluk namazı, güneş doğup kerahat vakti çıktıktan sonra (doğuştan yaklaşık 45 dakika sonra) öğle vaktine yakın zamana kadar kılınabilen nafile namazdır; 2, 4, 6 veya 8 rekat kılınır.',
-    'صلاة الضحى نافلة تُصلى بعد خروج وقت الكراهة عقب الشروق إلى قبيل الظهر، من ركعتين إلى ثمانٍ.',
-    'The Duha prayer is voluntary, performed after the post-sunrise makruh period ends (about 45 minutes after sunrise) until shortly before Dhuhr - 2, 4, 6 or 8 rak\'ahs.',
+    'Kuşluk vaktinde — 2-8 rekat', 'في الضحى — ٢-٨ ركعات', 'Mid-morning — 2-8 rak\'ahs',
+    'Kuşluk namazı, güneş doğup kerahat çıktıktan sonra (doğuştan yaklaşık 45 dk sonra) öğleye yakın vakte kadar kılınabilen nafiledir; 2, 4, 6 veya 8 rekat kılınır.',
+    'صلاة الضحى نافلة بعد خروج وقت الكراهة عقب الشروق إلى قبيل الظهر، من ركعتين إلى ثمان.',
+    'The Duha prayer is voluntary, from about 45 minutes after sunrise until shortly before Dhuhr - 2, 4, 6 or 8 rak\'ahs.',
+    '2-8',
     [
-      'Güneşin doğuşundan yaklaşık 45 dakika sonra kılınabilir hâle gelir',
-      'Niyet edilip 2 rekat kılınır (normal nafile gibi)',
-      'Dilenirse ikişer rekat hâlinde 8 rekata kadar artırılır',
-    ],
-    [
-      'يدخل وقتها بعد نحو ٤٥ دقيقة من الشروق',
-      'تُصلى ركعتان بنيتها',
-      'تُزاد مثنى مثنى إلى ثمان لمن شاء',
-    ],
-    [
-      'Its time begins about 45 minutes after sunrise',
-      'Make intention and pray 2 rak\'ahs (as a regular voluntary prayer)',
-      'Increase in pairs up to 8 rak\'ahs if desired',
+      OtherSection('2 Rekat', 'ركعتان', '2 Rak\'ahs',
+        part: PrayerPart(PartKind.sunnah, 2),
+        infoTr: 'Dilenirse ikişer rekat hâlinde 8 rekata kadar artırılır.',
+        infoAr: 'تُزاد مثنى مثنى إلى ثمانٍ لمن شاء.',
+        infoEn: 'Increase in pairs up to 8 rak\'ahs if desired.',
+      ),
     ]),
   OtherPrayer(
     'İstihâre Namazı', 'صلاة الاستخارة', 'Istikhara Prayer',
-    'Hayırlısını dilemek için 2 rekat', 'ركعتان لطلب الخيرة', '2 rak\'ahs to seek guidance',
-    'İstihâre, bir işin hakkında hayırlı olup olmadığını Allah\'tan dilemek için kılınan 2 rekatlık nafile namazdır; ardından istihâre duası okunur ve karar Allah\'a havale edilir.',
-    'الاستخارة ركعتان لطلب الخيرة من الله في أمر مباح، يُدعى بعدهما بدعاء الاستخارة ويُفوَّض الأمر إلى الله.',
-    'Istikhara is a 2-rak\'ah voluntary prayer to ask Allah for the better outcome in a permissible matter, followed by the istikhara supplication.',
+    'Hayırlısını dilemek için — 2 rekat', 'لطلب الخيرة — ركعتان', 'To seek what is best — 2 rak\'ahs',
+    'İstihâre, bir işin hakkında hayırlı olup olmadığını Allah\'tan dilemek için kılınan 2 rekatlık nafiledir; ardından istihâre duası okunur ve iş Allah\'a havale edilir. Gerekirse 7 güne kadar tekrarlanır; kalbin yatıştığı taraf tercih edilir.',
+    'الاستخارة ركعتان لطلب الخيرة من الله في أمر مباح، يُدعى بعدهما بدعاء الاستخارة ويُفوَّض الأمر إلى الله، وتُكرر إلى سبعة أيام إن لزم.',
+    'Istikhara is 2 voluntary rak\'ahs to ask Allah for the better outcome, followed by the istikhara supplication; repeat up to seven days if needed.',
+    '2',
     [
-      'Abdest alınıp istihâreye niyet edilir',
-      '2 rekat kılınır: 1. rekatta Kâfirûn, 2. rekatta İhlâs okunması tavsiye edilir',
-      'Selamdan sonra istihâre duası okunur ve iş Allah\'a havale edilir',
-      'Gerekirse istihâre 7 güne kadar tekrarlanabilir; kalbin yatıştığı taraf tercih edilir',
-    ],
-    [
-      'يُتوضأ وتُعقد نية الاستخارة',
-      'تُصلى ركعتان: يُستحب في الأولى الكافرون وفي الثانية الإخلاص',
-      'بعد السلام يُقرأ دعاء الاستخارة ويُفوض الأمر إلى الله',
-      'تُكرر إلى سبعة أيام إن لزم ويُمضى لما ينشرح له الصدر',
-    ],
-    [
-      'Make wudu and intend istikhara',
-      'Pray 2 rak\'ahs: Al-Kafirun in the first and Al-Ikhlas in the second are recommended',
-      'After salam, recite the istikhara supplication and entrust the matter to Allah',
-      'Repeat up to seven days if needed; incline to what the heart settles upon',
+      OtherSection('2 Rekat', 'ركعتان', '2 Rak\'ahs',
+        part: PrayerPart(PartKind.sunnah, 2),
+        infoTr: '1. rekatta zammı sure olarak Kâfirûn, 2. rekatta İhlâs okunması tavsiye edilir. Selamdan sonra istihâre duası okunur.',
+        infoAr: 'يُستحب قراءة الكافرون في الأولى والإخلاص في الثانية، وبعد السلام دعاء الاستخارة.',
+        infoEn: 'Al-Kafirun in the 1st rak\'ah and Al-Ikhlas in the 2nd are recommended; after salam, recite the istikhara dua.',
+      ),
     ]),
   OtherPrayer(
     'Tesbih Namazı', 'صلاة التسبيح', 'Tasbih Prayer',
-    '4 rekat, 300 tesbihli', 'أربع ركعات بثلاثمئة تسبيحة', '4 rak\'ahs with 300 tasbihs',
-    'Tesbih namazı, her rekatında 75 kez olmak üzere toplam 300 kez \'Sübhânallâhi ve\'l-hamdü lillâhi ve lâ ilâhe illallâhü vallâhü ekber\' denilen 4 rekatlık nafile namazdır; günahların bağışlanmasına vesile olduğu hadiste bildirilmiştir.',
-    'صلاة التسبيح أربع ركعات يقال فيها «سبحان الله والحمد لله ولا إله إلا الله والله أكبر» ثلاثمئة مرة: خمسًا وسبعين في كل ركعة.',
-    'The Tasbih prayer is 4 rak\'ahs in which the tasbih \'Subhanallahi wal-hamdu lillahi wa la ilaha illallahu wallahu akbar\' is said 300 times - 75 in each rak\'ah.',
+    '4 rekat — toplam 300 tesbih', 'أربع ركعات — ٣٠٠ تسبيحة', '4 rak\'ahs — 300 tasbihs in total',
+    'Tesbih namazı, her rekatında 75 olmak üzere toplam 300 kez tesbih okunan 4 rekatlık nafiledir; günahların bağışlanmasına vesile olduğu hadiste bildirilmiştir. Ömürde bir kez olsun kılınması tavsiye edilir.',
+    'صلاة التسبيح أربع ركعات فيها ثلاثمئة تسبيحة: خمس وسبعون في كل ركعة، وقد ورد فضلها في الحديث.',
+    'The Tasbih prayer is 4 rak\'ahs containing 300 tasbihs - 75 in each; its virtue is reported in hadith.',
+    '4',
     [
-      'Niyet, iftitah tekbiri ve Sübhâneke\'den sonra 15 kez tesbih okunur',
-      'Fâtiha ve zammı sureden sonra 10, rükûda 10, rükûdan doğrulunca 10',
-      'Her iki secdede 10\'ar, iki secde arasında 10, ikinci secdeden kalkmadan 10 (rekat toplamı 75)',
-      'Aynı düzenle 4 rekat tamamlanır (toplam 300 tesbih)',
-    ],
-    [
-      'بعد النية والاستفتاح يُسبَّح ١٥ مرة',
-      'بعد الفاتحة والسورة ١٠، وفي الركوع ١٠، وبعد الرفع ١٠',
-      'في كل سجدة ١٠، وبين السجدتين ١٠، وقبل القيام ١٠ (٧٥ في الركعة)',
-      'تُتم أربع ركعات بالمثل (٣٠٠ تسبيحة)',
-    ],
-    [
-      'After intention, opening takbir and Subhanaka, say the tasbih 15 times',
-      'After Fatiha and a surah 10, in ruku 10, upon rising 10',
-      'In each prostration 10, between them 10, before standing 10 (75 per rak\'ah)',
-      'Complete 4 rak\'ahs likewise (300 total)',
+      OtherSection('1. Rekat • 75 Tesbih', 'الركعة الأولى • ٧٥ تسبيحة', 'Rak\'ah 1 • 75 Tasbihs',
+        stepsTr: [
+          'Niyet ve iftitah tekbiri; Sübhâneke\'den sonra 15 kez tesbih okunur: Sübhânallâhi ve\'l-hamdü lillâhi ve lâ ilâhe illallâhü vallâhü ekber',
+          'Eûzü besmele, Fâtiha ve zammı sureden sonra 10 kez tesbih',
+          'Rükûda (Sübhâne Rabbiye\'l-azîm\'den sonra) 10 kez',
+          'Rükûdan doğrulunca 10 kez',
+          '1. secdede 10 kez',
+          'İki secde arasındaki oturuşta 10 kez',
+          '2. secdede 10 kez — rekat toplamı 75 tesbih',
+        ],
+        stepsAr: [
+          'بعد النية والاستفتاح يُسبَّح ١٥ مرة: سبحان الله والحمد لله ولا إله إلا الله والله أكبر',
+          'بعد الفاتحة والسورة ١٠',
+          'في الركوع ١٠',
+          'بعد الرفع ١٠',
+          'في السجدة الأولى ١٠',
+          'بين السجدتين ١٠',
+          'في السجدة الثانية ١٠ — المجموع ٧٥ في الركعة',
+        ],
+        stepsEn: [
+          'After intention, opening takbir and Subhanaka, say the tasbih 15 times: Subhanallahi wal-hamdu lillahi wa la ilaha illallahu wallahu akbar',
+          'After Fatiha and a surah, 10 times',
+          'In ruku (after Subhana Rabbiyal-Azim), 10',
+          'Upon rising, 10',
+          'In the 1st prostration, 10',
+          'Sitting between prostrations, 10',
+          'In the 2nd prostration, 10 - 75 per rak\'ah',
+        ],
+      ),
+      OtherSection('2-4. Rekatlar', 'الركعات ٢-٤', 'Rak\'ahs 2-4',
+        infoTr: 'Aynı düzenle kılınır (rekat başına 75, toplam 300). Oturuşlarda tesbihler Ettehiyyâtü\'den önce okunur. Son oturuşta Ettehiyyâtü, Salli-Bârik ve dualardan sonra selam verilir.',
+        infoAr: 'تُصلى بالنسق نفسه (٧٥ لكل ركعة، المجموع ٣٠٠). في القعدات يُسبَّح قبل التشهد، وفي الأخيرة بعد التشهد والصلاة الإبراهيمية يُسلَّم.',
+        infoEn: 'Prayed likewise (75 each, 300 total). In the sittings the tasbihs come before At-Tahiyyat; in the final sitting, salam follows the tashahhud and Salli-Barik.',
+      ),
     ]),
 ];

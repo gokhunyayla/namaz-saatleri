@@ -131,8 +131,16 @@ class _PrayersTab extends StatelessWidget {
       color: scheme.surfaceContainerLow,
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: FaIcon(FontAwesomeIcons.personPraying,
-            size: 20, color: scheme.primary),
+        leading: CircleAvatar(
+          backgroundColor: scheme.primaryContainer,
+          child: Text(
+            p.countLabel,
+            style: TextStyle(
+                color: scheme.onPrimaryContainer,
+                fontWeight: FontWeight.bold,
+                fontSize: p.countLabel.length > 2 ? 13 : 16),
+          ),
+        ),
         title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.chevron_right),
@@ -229,11 +237,6 @@ class OtherPrayerDetailScreen extends StatelessWidget {
       AppLang.ar => prayer.introAr,
       AppLang.en => prayer.introEn,
     };
-    final steps = switch (lang) {
-      AppLang.tr => prayer.stepsTr,
-      AppLang.ar => prayer.stepsAr,
-      AppLang.en => prayer.stepsEn,
-    };
 
     return Scaffold(
       appBar: AppBar(title: Text(name)),
@@ -266,6 +269,106 @@ class OtherPrayerDetailScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(intro, style: const TextStyle(fontSize: 15.5, height: 1.6)),
           const SizedBox(height: 16),
+          for (final section in prayer.sections)
+            _SectionView(section: section, g: g, lang: lang),
+          const SizedBox(height: 8),
+          Text(
+            g.guideNote,
+            style: TextStyle(color: scheme.outline, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Diğer namazlardaki tek bir bölüm: başlık + (rekat motoru | özel adımlar)
+/// + bilgi notu.
+class _SectionView extends StatelessWidget {
+  final OtherSection section;
+  final GuideL10n g;
+  final AppLang lang;
+
+  const _SectionView(
+      {required this.section, required this.g, required this.lang});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final label = switch (lang) {
+      AppLang.tr => section.labelTr,
+      AppLang.ar => section.labelAr,
+      AppLang.en => section.labelEn,
+    };
+    final steps = switch (lang) {
+      AppLang.tr => section.stepsTr,
+      AppLang.ar => section.stepsAr,
+      AppLang.en => section.stepsEn,
+    };
+    final info = switch (lang) {
+      AppLang.tr => section.infoTr,
+      AppLang.ar => section.infoAr,
+      AppLang.en => section.infoEn,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: scheme.primaryContainer,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              FaIcon(FontAwesomeIcons.personPraying,
+                  size: 18, color: scheme.onPrimaryContainer),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: scheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (section.part != null)
+          ...buildRakats(g, section.part!).map(
+            (rakat) => Card(
+              elevation: 0,
+              color: scheme.surfaceContainerLow,
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ExpansionTile(
+                shape: const Border(),
+                title: Text(rakat.$1,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                children: [
+                  for (final (i, step) in rakat.$2.indexed)
+                    ListTile(
+                      dense: true,
+                      leading: CircleAvatar(
+                        radius: 12,
+                        backgroundColor: scheme.primary,
+                        child: Text(
+                          '${i + 1}',
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.white),
+                        ),
+                      ),
+                      title: Text(step),
+                    ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ),
+        if (steps != null)
           for (final (i, step) in steps.indexed)
             Card(
               elevation: 0,
@@ -283,13 +386,21 @@ class OtherPrayerDetailScreen extends StatelessWidget {
                 title: Text(step, style: const TextStyle(height: 1.4)),
               ),
             ),
-          const SizedBox(height: 8),
-          Text(
-            g.guideNote,
-            style: TextStyle(color: scheme.outline, fontSize: 12),
+        if (info != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8, left: 4, right: 4),
+            child: Text(
+              info,
+              style: TextStyle(
+                color: scheme.onSurfaceVariant,
+                fontSize: 13.5,
+                fontStyle: FontStyle.italic,
+                height: 1.5,
+              ),
+            ),
           ),
-        ],
-      ),
+        const SizedBox(height: 12),
+      ],
     );
   }
 }
