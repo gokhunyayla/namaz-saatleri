@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../app_settings.dart';
+import '../data/other_prayers.dart';
+import '../data/popular_surahs.dart';
 import '../data/prayer_guide.dart';
 import '../data/prayer_texts.dart';
 import '../l10n/strings.dart';
@@ -16,51 +18,51 @@ class GuideScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final g = guideL10nFor(AppSettings.instance.lang);
-    final scheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(g.guideTitle)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _sectionTitle(context, g.prayersSection,
-              const FaIcon(FontAwesomeIcons.personPraying, size: 18)),
-          const SizedBox(height: 4),
-          ...prayerGuides.map((def) => _prayerTile(context, g, def)),
-          const SizedBox(height: 20),
-          _sectionTitle(context, g.textsSection,
-              const Icon(Icons.menu_book_outlined, size: 20)),
-          const SizedBox(height: 4),
-          _groupHeader(context, g.duasGroup),
-          ...prayerDuas.map((t) => _textTile(context, g, t)),
-          const SizedBox(height: 8),
-          _groupHeader(context, g.surasGroup),
-          ...prayerSurahs.map((t) => _textTile(context, g, t)),
-          const SizedBox(height: 12),
-          Text(
-            g.guideNote,
-            style: TextStyle(color: scheme.outline, fontSize: 12),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(g.guideTitle),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: g.prayersSection),
+              Tab(text: g.textsSection),
+            ],
           ),
-        ],
+        ),
+        body: TabBarView(
+          children: [
+            _PrayersTab(g: g),
+            _TextsTab(g: g),
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _sectionTitle(BuildContext context, String text, Widget icon) {
+/// Namazlar sekmesi: Vakit Namazları + Diğer Namazlar.
+class _PrayersTab extends StatelessWidget {
+  final GuideL10n g;
+
+  const _PrayersTab({required this.g});
+
+  @override
+  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Row(
+    return ListView(
+      padding: const EdgeInsets.all(16),
       children: [
-        IconTheme(
-          data: IconThemeData(color: scheme.primary),
-          child: icon,
-        ),
-        const SizedBox(width: 8),
+        _groupHeader(context, g.groupDaily),
+        ...prayerGuides.map((def) => _prayerTile(context, def)),
+        const SizedBox(height: 16),
+        _groupHeader(context, g.groupOther),
+        ...otherPrayers.map((p) => _otherTile(context, p)),
+        const SizedBox(height: 12),
         Text(
-          text,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.bold),
+          g.guideNote,
+          style: TextStyle(color: scheme.outline, fontSize: 12),
         ),
       ],
     );
@@ -71,7 +73,7 @@ class GuideScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Text(
         text,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold,
             ),
@@ -79,7 +81,7 @@ class GuideScreen extends StatelessWidget {
     );
   }
 
-  Widget _prayerTile(BuildContext context, GuideL10n g, PrayerGuideDef def) {
+  Widget _prayerTile(BuildContext context, PrayerGuideDef def) {
     final scheme = Theme.of(context).colorScheme;
     final nameIdx = prayerGuides.indexOf(def);
     final summary = def.parts
@@ -111,25 +113,182 @@ class GuideScreen extends StatelessWidget {
     );
   }
 
-  Widget _textTile(BuildContext context, GuideL10n g, PrayerText t) {
+  Widget _otherTile(BuildContext context, OtherPrayer p) {
     final lang = AppSettings.instance.lang;
+    final scheme = Theme.of(context).colorScheme;
     final name = switch (lang) {
-      AppLang.tr => t.nameTr,
-      AppLang.ar => t.nameAr,
-      AppLang.en => t.nameEn,
+      AppLang.tr => p.nameTr,
+      AppLang.ar => p.nameAr,
+      AppLang.en => p.nameEn,
     };
-    return ListTile(
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-      leading: Icon(
-        t.isSurah ? Icons.auto_stories_outlined : Icons.volunteer_activism,
-        size: 20,
-        color: Theme.of(context).colorScheme.primary,
+    final subtitle = switch (lang) {
+      AppLang.tr => p.subtitleTr,
+      AppLang.ar => p.subtitleAr,
+      AppLang.en => p.subtitleEn,
+    };
+    return Card(
+      elevation: 0,
+      color: scheme.surfaceContainerLow,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: FaIcon(FontAwesomeIcons.personPraying,
+            size: 20, color: scheme.primary),
+        title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => OtherPrayerDetailScreen(prayer: p)),
+        ),
       ),
-      title: Text(name),
-      trailing: const Icon(Icons.chevron_right, size: 20),
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => PrayerTextDetailScreen(text: t)),
+    );
+  }
+}
+
+/// Sureler ve Dualar sekmesi: açılır-kapanır üç grup.
+class _TextsTab extends StatelessWidget {
+  final GuideL10n g;
+
+  const _TextsTab({required this.g});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(12),
+      children: [
+        _group(context, g.duasGroup, Icons.volunteer_activism, prayerDuas),
+        _group(context, g.surasGroup, Icons.auto_stories_outlined,
+            prayerSurahs),
+        _group(context, g.popularGroup, Icons.star_outline, popularSurahs,
+            initiallyExpanded: false),
+      ],
+    );
+  }
+
+  Widget _group(BuildContext context, String title, IconData icon,
+      List<PrayerText> items,
+      {bool initiallyExpanded = false}) {
+    final scheme = Theme.of(context).colorScheme;
+    final lang = AppSettings.instance.lang;
+    return Card(
+      elevation: 0,
+      color: scheme.surfaceContainerLow,
+      margin: const EdgeInsets.only(bottom: 10),
+      child: ExpansionTile(
+        shape: const Border(),
+        leading: Icon(icon, color: scheme.primary),
+        title: Text(title,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        initiallyExpanded: initiallyExpanded,
+        children: [
+          for (final t in items)
+            ListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+              title: Text(switch (lang) {
+                AppLang.tr => t.nameTr,
+                AppLang.ar => t.nameAr,
+                AppLang.en => t.nameEn,
+              }),
+              trailing: const Icon(Icons.chevron_right, size: 20),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (_) => PrayerTextDetailScreen(text: t)),
+              ),
+            ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cuma, Bayram, Cenaze gibi diğer namazların açıklamalı anlatımı.
+class OtherPrayerDetailScreen extends StatelessWidget {
+  final OtherPrayer prayer;
+
+  const OtherPrayerDetailScreen({super.key, required this.prayer});
+
+  @override
+  Widget build(BuildContext context) {
+    final g = guideL10nFor(AppSettings.instance.lang);
+    final lang = AppSettings.instance.lang;
+    final scheme = Theme.of(context).colorScheme;
+
+    final name = switch (lang) {
+      AppLang.tr => prayer.nameTr,
+      AppLang.ar => prayer.nameAr,
+      AppLang.en => prayer.nameEn,
+    };
+    final subtitle = switch (lang) {
+      AppLang.tr => prayer.subtitleTr,
+      AppLang.ar => prayer.subtitleAr,
+      AppLang.en => prayer.subtitleEn,
+    };
+    final intro = switch (lang) {
+      AppLang.tr => prayer.introTr,
+      AppLang.ar => prayer.introAr,
+      AppLang.en => prayer.introEn,
+    };
+    final steps = switch (lang) {
+      AppLang.tr => prayer.stepsTr,
+      AppLang.ar => prayer.stepsAr,
+      AppLang.en => prayer.stepsEn,
+    };
+
+    return Scaffold(
+      appBar: AppBar(title: Text(name)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                FaIcon(FontAwesomeIcons.personPraying,
+                    size: 18, color: scheme.onPrimaryContainer),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: scheme.onPrimaryContainer,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(intro, style: const TextStyle(fontSize: 15.5, height: 1.6)),
+          const SizedBox(height: 16),
+          for (final (i, step) in steps.indexed)
+            Card(
+              elevation: 0,
+              color: scheme.surfaceContainerLow,
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  radius: 14,
+                  backgroundColor: scheme.primary,
+                  child: Text(
+                    '${i + 1}',
+                    style: const TextStyle(fontSize: 13, color: Colors.white),
+                  ),
+                ),
+                title: Text(step, style: const TextStyle(height: 1.4)),
+              ),
+            ),
+          const SizedBox(height: 8),
+          Text(
+            g.guideNote,
+            style: TextStyle(color: scheme.outline, fontSize: 12),
+          ),
+        ],
       ),
     );
   }

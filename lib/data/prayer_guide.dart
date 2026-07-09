@@ -68,6 +68,9 @@ class GuideL10n {
   final String guideTitle;
   final String prayersSection;
   final String textsSection;
+  final String groupDaily;
+  final String groupOther;
+  final String popularGroup;
   final String duasGroup;
   final String surasGroup;
   final String guideNote;
@@ -112,6 +115,9 @@ class GuideL10n {
     required this.guideTitle,
     required this.prayersSection,
     required this.textsSection,
+    required this.groupDaily,
+    required this.groupOther,
+    required this.popularGroup,
     required this.duasGroup,
     required this.surasGroup,
     required this.guideNote,
@@ -167,6 +173,9 @@ final _tr = GuideL10n(
   guideTitle: 'Namaz Nasıl Kılınır',
   prayersSection: 'Namazlar',
   textsSection: 'Sureler ve Dualar',
+  groupDaily: 'Vakit Namazları',
+  groupOther: 'Diğer Namazlar',
+  popularGroup: 'Çok Okunan Sureler',
   duasGroup: 'Namaz Duaları',
   surasGroup: 'Namaz Sureleri (Zammı Sure)',
   guideNote:
@@ -207,6 +216,9 @@ final _ar = GuideL10n(
   guideTitle: 'كيفية الصلاة',
   prayersSection: 'الصلوات',
   textsSection: 'السور والأدعية',
+  groupDaily: 'الصلوات الخمس',
+  groupOther: 'صلوات أخرى',
+  popularGroup: 'سور كثيرة القراءة',
   duasGroup: 'أدعية الصلاة',
   surasGroup: 'سور الصلاة',
   guideNote: 'الشرح وفق المذهب الحنفي. تجد نصوص السور والأدعية في قسم "السور والأدعية".',
@@ -246,6 +258,9 @@ final _en = GuideL10n(
   guideTitle: 'How to Pray',
   prayersSection: 'Prayers',
   textsSection: 'Surahs & Supplications',
+  groupDaily: 'Daily Prayers',
+  groupOther: 'Other Prayers',
+  popularGroup: 'Frequently Read Surahs',
   duasGroup: 'Prayer Supplications',
   surasGroup: 'Prayer Surahs',
   guideNote:

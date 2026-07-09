@@ -46,3 +46,8 @@ app.*.map.json
 
 # Claude Code yerel oturum dosyaları
 .claude/
+
+# Büyük medya dosyaları (App Review kayıtları)
+store/*.MP4
+store/*.mp4
+store/*.mov

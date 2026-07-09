@@ -12,8 +12,8 @@ class PrayerText {
   final bool isSurah;
 
   final String arabic;
-  final String translitTr;
-  final String translitEn;
+  final String? translitTr;
+  final String? translitEn;
   final String mealTr;
   final String mealEn;
 
@@ -23,8 +23,8 @@ class PrayerText {
     required this.nameEn,
     required this.isSurah,
     required this.arabic,
-    required this.translitTr,
-    required this.translitEn,
+    this.translitTr,
+    this.translitEn,
     required this.mealTr,
     required this.mealEn,
   });
