@@ -4,6 +4,17 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [1.1.0] - 2026-07-11
+
+### Eklendi
+- "İbadet" sekmesi iki bölüme ayrıldı: Namazlar ile Sureler ve Dualar
+- Diğer Namazlar: Cuma (16 rekat: 4 ilk sünnet + hutbe + 2 farz + 4 son sünnet + 4 zuhr-i âhir + 2 vaktin sünneti), Bayram (zevaid tekbirleri adım adım), Cenaze (4 tekbir), Teravih, Teheccüd, Evvâbin, Kuşluk, İstihâre ve Tesbih namazı (75'lik tesbih dağılımı) — hepsi vakit namazları gibi bölüm bölüm, rekat rekat anlatımla
+- Çok okunan sureler: Âyete'l-Kürsî, Yâsîn ve Mülk (Tebâreke) — Yâsîn ve Mülk gerçek Mushaf sayfa düzeniyle (sayfa sayfa, sağdan sola)
+- Diğer namaz listesinde rekat sayılı daire göstergeleri
+
+### Değişti
+- Alt menüdeki "Namaz" sekmesinin adı "İbadet" oldu
+
 ## [1.0.0] - 2026-07-02
 
 ### Eklendi
