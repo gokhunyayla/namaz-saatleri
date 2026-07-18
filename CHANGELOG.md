@@ -4,6 +4,12 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına,
 sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [1.2.0] - 2026-07-18
+
+### Eklendi
+- Namaz Sureleri'ne beş sure (Mushaf sırasıyla): Duhâ, İnşirah, Tîn, Tekâsür ve Asr — Arapça, okunuş ve mealleriyle
+- Çok Okunan Sureler'e: Elif Lâm Mîm (Bakara 1-5) ve Âmene'r-Resûlü (Bakara 285-286)
+
 ## [1.1.0] - 2026-07-11
 
 ### Eklendi
