@@ -194,6 +194,86 @@ const List<PrayerText> prayerSurahs = [
         'In the name of Allah, the Most Gracious, the Most Merciful. All praise is due to Allah, Lord of the worlds — the Most Gracious, the Most Merciful, Master of the Day of Judgment. You alone we worship, and You alone we ask for help. Guide us to the straight path — the path of those upon whom You have bestowed favor, not of those who have earned Your anger, nor of those who have gone astray.',
   ),
   PrayerText(
+    nameTr: 'Duhâ Suresi',
+    nameAr: 'سورة الضحى',
+    nameEn: 'Surah Ad-Duha',
+    isSurah: true,
+    arabic:
+        'وَالضُّحَىٰ ﴿١﴾ وَاللَّيْلِ إِذَا سَجَىٰ ﴿٢﴾ مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ ﴿٣﴾ وَلَلْآخِرَةُ خَيْرٌ لَكَ مِنَ الْأُولَىٰ ﴿٤﴾ وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ ﴿٥﴾ أَلَمْ يَجِدْكَ يَتِيمًا فَآوَىٰ ﴿٦﴾ وَوَجَدَكَ ضَالًّا فَهَدَىٰ ﴿٧﴾ وَوَجَدَكَ عَائِلًا فَأَغْنَىٰ ﴿٨﴾ فَأَمَّا الْيَتِيمَ فَلَا تَقْهَرْ ﴿٩﴾ وَأَمَّا السَّائِلَ فَلَا تَنْهَرْ ﴿١٠﴾ وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ ﴿١١﴾',
+    translitTr:
+        'Vedduhâ. Velleyli izâ secâ. Mâ vedde\'ake rabbüke ve mâ kalâ. Ve lel-âhıratü hayrun leke minel-ûlâ. Ve lesevfe yu\'tîke rabbüke fe terdâ. Elem yecidke yetîmen fe âvâ. Ve vecedeke dâllen fe hedâ. Ve vecedeke âilen fe ağnâ. Fe emmel-yetîme fe lâ takher. Ve emmes-sâile fe lâ tenher. Ve emmâ bi ni\'meti rabbike fe haddis.',
+    translitEn:
+        'Wad-duha. Wal-layli idha saja. Ma wadda\'aka Rabbuka wa ma qala. Wa lal-akhiratu khayrun laka minal-ula. Wa lasawfa yu\'tika Rabbuka fatarda. Alam yajidka yatiman fa-awa. Wa wajadaka dallan fahada. Wa wajadaka \'a\'ilan fa-aghna. Fa-ammal-yatima fala taqhar. Wa ammas-sa\'ila fala tanhar. Wa amma bini\'mati Rabbika fahaddith.',
+    mealTr:
+        'Kuşluk vaktine ve sükûna erdiğinde geceye andolsun ki Rabbin seni bırakmadı ve sana darılmadı. Elbette ahiret senin için dünyadan daha hayırlıdır. Rabbin sana verecek ve sen hoşnut olacaksın. Seni yetim bulup barındırmadı mı? Seni yol ararken bulup doğru yola iletmedi mi? Seni ihtiyaç içinde bulup zengin etmedi mi? Öyleyse yetimi ezme, isteyeni azarlama ve Rabbinin nimetini anlat.',
+    mealEn:
+        'By the morning brightness and the night when it grows still: your Lord has not forsaken you, nor does He hate you. The Hereafter is better for you than the first life, and your Lord will surely give to you and you will be satisfied. Did He not find you an orphan and shelter you? Did He not find you seeking and guide you? Did He not find you in need and enrich you? So do not oppress the orphan, nor repel the one who asks, and proclaim the favor of your Lord.',
+  ),
+  PrayerText(
+    nameTr: 'İnşirah Suresi',
+    nameAr: 'سورة الشرح',
+    nameEn: 'Surah Ash-Sharh (Al-Inshirah)',
+    isSurah: true,
+    arabic:
+        'أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ ﴿١﴾ وَوَضَعْنَا عَنْكَ وِزْرَكَ ﴿٢﴾ الَّذِي أَنْقَضَ ظَهْرَكَ ﴿٣﴾ وَرَفَعْنَا لَكَ ذِكْرَكَ ﴿٤﴾ فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ﴿٥﴾ إِنَّ مَعَ الْعُسْرِ يُسْرًا ﴿٦﴾ فَإِذَا فَرَغْتَ فَانْصَبْ ﴿٧﴾ وَإِلَىٰ رَبِّكَ فَارْغَبْ ﴿٨﴾',
+    translitTr:
+        'Elem neşrah leke sadrak. Ve vada\'nâ anke vizrak. Ellezî enkada zahrak. Ve refa\'nâ leke zikrak. Fe inne meal-usri yüsrâ. İnne meal-usri yüsrâ. Fe izâ ferağte fensab. Ve ilâ rabbike ferğab.',
+    translitEn:
+        'Alam nashrah laka sadrak. Wa wada\'na \'anka wizrak. Alladhi anqada zahrak. Wa rafa\'na laka dhikrak. Fa-inna ma\'al-\'usri yusra. Inna ma\'al-\'usri yusra. Fa-idha faraghta fansab. Wa ila Rabbika farghab.',
+    mealTr:
+        'Senin göğsünü açıp genişletmedik mi? Belini büken yükünü üzerinden almadık mı? Senin şânını yüceltmedik mi? Şüphesiz güçlükle beraber bir kolaylık vardır. Gerçekten, güçlükle beraber bir kolaylık vardır. Öyleyse bir işi bitirince diğerine koyul ve yalnız Rabbine yönel.',
+    mealEn:
+        'Did We not expand your breast for you, and remove from you your burden which weighed down your back, and raise high your renown? Indeed, with hardship comes ease; indeed, with hardship comes ease. So when you have finished, labor on, and turn to your Lord with longing.',
+  ),
+  PrayerText(
+    nameTr: 'Tîn Suresi',
+    nameAr: 'سورة التين',
+    nameEn: 'Surah At-Tin',
+    isSurah: true,
+    arabic:
+        'وَالتِّينِ وَالزَّيْتُونِ ﴿١﴾ وَطُورِ سِينِينَ ﴿٢﴾ وَهَٰذَا الْبَلَدِ الْأَمِينِ ﴿٣﴾ لَقَدْ خَلَقْنَا الْإِنْسَانَ فِي أَحْسَنِ تَقْوِيمٍ ﴿٤﴾ ثُمَّ رَدَدْنَاهُ أَسْفَلَ سَافِلِينَ ﴿٥﴾ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ ﴿٦﴾ فَمَا يُكَذِّبُكَ بَعْدُ بِالدِّينِ ﴿٧﴾ أَلَيْسَ اللَّهُ بِأَحْكَمِ الْحَاكِمِينَ ﴿٨﴾',
+    translitTr:
+        'Vettîni vezzeytûn. Ve tûri sînîn. Ve hâzel-beledil-emîn. Lekad halaknel-insâne fî ahseni takvîm. Sümme radednâhü esfele sâfilîn. İllellezîne âmenû ve amilüs-sâlihâti fe lehüm ecrun ğayru memnûn. Fe mâ yükezzibüke ba\'dü biddîn. Eleysallâhü bi ahkemil-hâkimîn.',
+    translitEn:
+        'Wat-tini waz-zaytun. Wa turi sinin. Wa hadhal-baladil-amin. Laqad khalaqnal-insana fi ahsani taqwim. Thumma radadnahu asfala safilin. Illal-ladhina amanu wa \'amilus-salihati falahum ajrun ghayru mamnun. Fama yukadhdhibuka ba\'du bid-din. Alaysallahu bi-ahkamil-hakimin.',
+    mealTr:
+        'İncire ve zeytine, Sînâ dağına ve bu güvenli şehre (Mekke\'ye) andolsun ki biz insanı en güzel biçimde yarattık. Sonra onu aşağıların aşağısına indirdik; ancak iman edip salih ameller işleyenler başka — onlar için kesintisiz bir mükâfat vardır. Öyleyse bundan sonra sana hesap gününü ne yalanlatabilir? Allah, hükmedenlerin en üstünü değil midir?',
+    mealEn:
+        'By the fig and the olive, by Mount Sinai, and by this secure city: We created man in the finest form, then reduced him to the lowest of the low — except those who believe and do righteous deeds, for they will have an unfailing reward. So what, after this, makes you deny the Judgment? Is not Allah the most just of judges?',
+  ),
+  PrayerText(
+    nameTr: 'Tekâsür Suresi',
+    nameAr: 'سورة التكاثر',
+    nameEn: 'Surah At-Takathur',
+    isSurah: true,
+    arabic:
+        'أَلْهَاكُمُ التَّكَاثُرُ ﴿١﴾ حَتَّىٰ زُرْتُمُ الْمَقَابِرَ ﴿٢﴾ كَلَّا سَوْفَ تَعْلَمُونَ ﴿٣﴾ ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ ﴿٤﴾ كَلَّا لَوْ تَعْلَمُونَ عِلْمَ الْيَقِينِ ﴿٥﴾ لَتَرَوُنَّ الْجَحِيمَ ﴿٦﴾ ثُمَّ لَتَرَوُنَّهَا عَيْنَ الْيَقِينِ ﴿٧﴾ ثُمَّ لَتُسْأَلُنَّ يَوْمَئِذٍ عَنِ النَّعِيمِ ﴿٨﴾',
+    translitTr:
+        'Elhâkümüt-tekâsür. Hattâ zürtümül-mekâbir. Kellâ sevfe ta\'lemûn. Sümme kellâ sevfe ta\'lemûn. Kellâ lev ta\'lemûne ilmel-yakîn. Le teravünnel-cahîm. Sümme le teravünnehâ aynel-yakîn. Sümme le tüs\'elünne yevmeizin anin-naîm.',
+    translitEn:
+        'Alhakumut-takathur. Hatta zurtumul-maqabir. Kalla sawfa ta\'lamun. Thumma kalla sawfa ta\'lamun. Kalla law ta\'lamuna \'ilmal-yaqin. Latarawunnal-jahim. Thumma latarawunnaha \'aynal-yaqin. Thumma latus\'alunna yawma\'idhin \'anin-na\'im.',
+    mealTr:
+        'Çoklukla övünme yarışı sizi kabirleri ziyaret edinceye (ölünceye) kadar oyaladı. Hayır, ileride bileceksiniz! Yine hayır, ileride bileceksiniz! Hayır, kesin bilgiyle bilseydiniz! Cehennemi mutlaka göreceksiniz. Sonra onu kesin bir gözle göreceksiniz. Sonra o gün nimetlerden mutlaka sorguya çekileceksiniz.',
+    mealEn:
+        'Rivalry in worldly increase distracted you until you visited the graves. No! You will come to know. Again, no! You will come to know. No! If you only knew with certain knowledge... You will surely see the Hellfire; then you will surely see it with the eye of certainty. Then, on that Day, you will surely be asked about the blessings.',
+  ),
+  PrayerText(
+    nameTr: 'Asr Suresi',
+    nameAr: 'سورة العصر',
+    nameEn: 'Surah Al-Asr',
+    isSurah: true,
+    arabic:
+        'وَالْعَصْرِ ﴿١﴾ إِنَّ الْإِنْسَانَ لَفِي خُسْرٍ ﴿٢﴾ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ ﴿٣﴾',
+    translitTr:
+        'Vel-asr. İnnel-insâne le fî husr. İllellezîne âmenû ve amilüs-sâlihâti ve tevâsav bil-hakkı ve tevâsav bis-sabr.',
+    translitEn:
+        'Wal-\'asr. Innal-insana lafi khusr. Illal-ladhina amanu wa \'amilus-salihati wa tawasaw bil-haqqi wa tawasaw bis-sabr.',
+    mealTr:
+        'Asra (zamana) andolsun ki insan gerçekten ziyandadır. Ancak iman edip salih ameller işleyenler, birbirlerine hakkı tavsiye edenler ve birbirlerine sabrı tavsiye edenler başka.',
+    mealEn:
+        'By time, indeed mankind is in loss — except those who believe and do righteous deeds and counsel one another to truth and counsel one another to patience.',
+  ),
+  PrayerText(
     nameTr: 'Fil Suresi',
     nameAr: 'سورة الفيل',
     nameEn: 'Surah Al-Fil',

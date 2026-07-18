@@ -8,6 +8,22 @@ import 'prayer_texts.dart';
 
 const List<PrayerText> popularSurahs = [
   PrayerText(
+    nameTr: 'Elif Lâm Mîm (Bakara 1-5)',
+    nameAr: 'الم (البقرة ١-٥)',
+    nameEn: 'Alif Lam Mim (Al-Baqarah 1-5)',
+    isSurah: true,
+    arabic:
+        'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ الم ﴿١﴾ ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِلْمُتَّقِينَ ﴿٢﴾ الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنْفِقُونَ ﴿٣﴾ وَالَّذِينَ يُؤْمِنُونَ بِمَا أُنْزِلَ إِلَيْكَ وَمَا أُنْزِلَ مِنْ قَبْلِكَ وَبِالْآخِرَةِ هُمْ يُوقِنُونَ ﴿٤﴾ أُولَٰئِكَ عَلَىٰ هُدًى مِنْ رَبِّهِمْ ۖ وَأُولَٰئِكَ هُمُ الْمُفْلِحُونَ ﴿٥﴾',
+    translitTr:
+        'Bismillâhirrahmânirrahîm. Elif lâm mîm. Zâlikel-kitâbü lâ raybe fîh. Hüden lil-müttekîn. Ellezîne yü\'minûne bil-ğaybi ve yükîmûnes-salâte ve mimmâ razaknâhüm yünfikûn. Vellezîne yü\'minûne bimâ ünzile ileyke ve mâ ünzile min kablik. Ve bil-âhırati hüm yûkınûn. Ülâike alâ hüden min rabbihim ve ülâike hümül-müflihûn.',
+    translitEn:
+        'Bismillahir-Rahmanir-Rahim. Alif Lam Mim. Dhalikal-kitabu la rayba fih, hudan lil-muttaqin. Alladhina yu\'minuna bil-ghaybi wa yuqimunas-salata wa mimma razaqnahum yunfiqun. Wal-ladhina yu\'minuna bima unzila ilayka wa ma unzila min qablika wa bil-akhirati hum yuqinun. Ula\'ika \'ala hudan min Rabbihim wa ula\'ika humul-muflihun.',
+    mealTr:
+        'Elif Lâm Mîm. Bu, kendisinde şüphe olmayan kitaptır; Allah\'a karşı gelmekten sakınanlar için yol göstericidir. Onlar gayba inanırlar, namazı dosdoğru kılarlar ve kendilerine rızık olarak verdiklerimizden Allah yolunda harcarlar. Sana indirilene ve senden önce indirilenlere iman ederler; ahirete de kesin olarak inanırlar. İşte onlar Rablerinden gelen bir hidayet üzeredirler ve kurtuluşa erenler de işte onlardır. (Bakara, 2:1-5)',
+    mealEn:
+        'Alif Lam Mim. This is the Book in which there is no doubt, a guidance for the God-conscious — those who believe in the unseen, establish prayer, and spend out of what We have provided them; who believe in what was revealed to you and what was revealed before you, and are certain of the Hereafter. It is they who are upon guidance from their Lord, and it is they who are successful. (Al-Baqarah 2:1-5)',
+  ),
+  PrayerText(
     nameTr: 'Âyete\'l-Kürsî',
     nameAr: 'آية الكرسي',
     nameEn: 'Ayat al-Kursi',
@@ -17,6 +33,22 @@ const List<PrayerText> popularSurahs = [
     translitEn: 'Allahu la ilaha illa huwal-hayyul-qayyum. La ta\'khudhuhu sinatun wa la nawm. Lahu ma fis-samawati wa ma fil-ard. Man dhal-ladhi yashfa\'u \'indahu illa bi-idhnih. Ya\'lamu ma bayna aydihim wa ma khalfahum. Wa la yuhituna bi-shay\'im-min \'ilmihi illa bima sha\'. Wasi\'a kursiyyuhus-samawati wal-ard. Wa la ya\'uduhu hifzuhuma. Wa huwal-\'aliyyul-\'azim.',
     mealTr: 'Allah, kendisinden başka ilâh olmayandır; diridir, her şeyi ayakta tutandır. O\'nu ne uyuklama tutar ne de uyku. Göklerdeki ve yerdeki her şey O\'nundur. İzni olmadan O\'nun katında kim şefaat edebilir? Onların önlerindekini ve arkalarındakini bilir. Onlar, O\'nun ilminden dilediği kadarından başkasını kavrayamazlar. Kürsüsü gökleri ve yeri kaplamıştır; onları korumak O\'na ağır gelmez. O yücedir, büyüktür. (Bakara, 2:255)',
     mealEn: 'Allah - there is no god but He, the Ever-Living, the Sustainer of all. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and the earth. Who can intercede with Him except by His permission? He knows what is before them and behind them, and they encompass nothing of His knowledge except what He wills. His Kursi extends over the heavens and the earth, and preserving them does not tire Him. He is the Most High, the Magnificent. (Al-Baqarah 2:255)',
+  ),
+  PrayerText(
+    nameTr: 'Âmene\'r-Resûlü (Bakara 285-286)',
+    nameAr: 'آمن الرسول (البقرة ٢٨٥-٢٨٦)',
+    nameEn: 'Amana\'r-Rasul (Al-Baqarah 285-286)',
+    isSurah: true,
+    arabic:
+        'آمَنَ الرَّسُولُ بِمَا أُنْزِلَ إِلَيْهِ مِنْ رَبِّهِ وَالْمُؤْمِنُونَ ۚ كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِنْ رُسُلِهِ ۚ وَقَالُوا سَمِعْنَا وَأَطَعْنَا ۖ غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ ﴿٢٨٥﴾ لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا ۚ لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ ۗ رَبَّنَا لَا تُؤَاخِذْنَا إِنْ نَسِينَا أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِنْ قَبْلِنَا ۚ رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ ۖ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا ۚ أَنْتَ مَوْلَانَا فَانْصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ ﴿٢٨٦﴾',
+    translitTr:
+        'Âmener-rasûlü bimâ ünzile ileyhi min rabbihî vel-mü\'minûn. Küllün âmene billâhi ve melâiketihî ve kütübihî ve rusülih. Lâ nüferriku beyne ehadin min rusülih. Ve kâlû semi\'nâ ve ata\'nâ ğufrâneke rabbenâ ve ileykel-masîr. Lâ yükellifullâhü nefsen illâ vüs\'ahâ. Lehâ mâ kesebet ve aleyhâ mektesebet. Rabbenâ lâ tüâhıznâ in nesînâ ev ahta\'nâ. Rabbenâ ve lâ tahmil aleynâ ısran kemâ hameltehû alellezîne min kablinâ. Rabbenâ ve lâ tühammilnâ mâ lâ tâkate lenâ bih. Va\'fü annâ, vağfir lenâ, verhamnâ. Ente mevlânâ fensurnâ alel-kavmil-kâfirîn.',
+    translitEn:
+        'Amanar-rasulu bima unzila ilayhi mir-Rabbihi wal-mu\'minun. Kullun amana billahi wa mala\'ikatihi wa kutubihi wa rusulih. La nufarriqu bayna ahadin mir-rusulih. Wa qalu sami\'na wa ata\'na ghufranaka Rabbana wa ilaykal-masir. La yukallifullahu nafsan illa wus\'aha. Laha ma kasabat wa \'alayha mak-tasabat. Rabbana la tu\'akhidhna in-nasina aw akhta\'na. Rabbana wa la tahmil \'alayna isran kama hamaltahu \'alal-ladhina min qablina. Rabbana wa la tuhammilna ma la taqata lana bih. Wa\'fu \'anna waghfir lana warhamna. Anta mawlana fansurna \'alal-qawmil-kafirin.',
+    mealTr:
+        'Peygamber, Rabbinden kendisine indirilene iman etti, müminler de. Hepsi Allah\'a, meleklerine, kitaplarına ve peygamberlerine iman ettiler: "Allah\'ın peygamberlerinden hiçbirini diğerinden ayırt etmeyiz. İşittik ve itaat ettik. Rabbimiz, bağışlamanı dileriz; dönüş yalnız sanadır" dediler. Allah hiç kimseye gücünün üstünde bir şey yüklemez. Herkesin kazandığı iyilik kendi lehine, işlediği kötülük kendi aleyhinedir. "Rabbimiz! Unutur veya yanılırsak bizi sorumlu tutma. Rabbimiz! Bizden öncekilere yüklediğin gibi bize de ağır yük yükleme. Rabbimiz! Gücümüzün yetmediğini bize taşıtma. Bizi affet, bizi bağışla, bize merhamet et. Sen bizim Mevlâmızsın; kâfirler topluluğuna karşı bize yardım et." (Bakara, 2:285-286)',
+    mealEn:
+        'The Messenger has believed in what was revealed to him from his Lord, and so have the believers. All have believed in Allah, His angels, His books, and His messengers: "We make no distinction between any of His messengers." And they say, "We hear and we obey. Grant us Your forgiveness, our Lord; to You is the final return." Allah does not burden any soul beyond its capacity. It will have what it has earned, and against it what it has committed. "Our Lord, do not hold us to account if we forget or err. Our Lord, do not lay upon us a burden like that You laid upon those before us. Our Lord, do not burden us with what we cannot bear. Pardon us, forgive us, and have mercy upon us. You are our Protector, so give us victory over the disbelieving people." (Al-Baqarah 2:285-286)',
   ),
   PrayerText(
     nameTr: 'Yâsîn Suresi',
